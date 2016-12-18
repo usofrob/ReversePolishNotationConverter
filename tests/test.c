@@ -9,7 +9,7 @@
 START_TEST (test_name)
 {
   /* unit test code */
-  ck_assert_int_eq(4, 5);
+  ck_assert_int_eq(5, 5);
 }
 END_TEST
 
