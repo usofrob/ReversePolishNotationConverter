@@ -10,3 +10,5 @@ function showError {
 # wget http://sourceforge.net/projects/plantuml/files/plantuml.jar/download -O bin/plantuml.jar || showError "Downloading plantuml.jar"
 
 sudo apt-get install check || showError "Installing check"
+
+mkdir -p bin
