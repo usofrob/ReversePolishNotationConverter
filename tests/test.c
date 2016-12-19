@@ -9,7 +9,7 @@
 
 #define MAX_STRING_LENGTH 128
 
-START_TEST (test_name)
+START_TEST (basic)
 {
 	char infix[] = "a";
 	char rpn[MAX_STRING_LENGTH] = "";
@@ -30,9 +30,9 @@ Suite * test_suite(void)
 	
 	s = suite_create("Testing");
 	
-	tc_core = tcase_create("Core");
+	tc_core = tcase_create("Infix_to_RPN");
 	
-	tcase_add_test(tc_core, test_name);
+	tcase_add_test(tc_core, basic);
 	suite_add_tcase(s, tc_core);
 	
 	return s;

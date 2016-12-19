@@ -14,4 +14,5 @@ Basic test to see environment works
 ## Library API basics
 The library defines these functions:
 ### convert()
-Does nothing :)
+Converts from infix notation to Reverse Polish Notation (RPN)
+See 'rpn_convert.h' for more details
