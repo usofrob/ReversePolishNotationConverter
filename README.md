@@ -1,5 +1,5 @@
 # ReversePolishNotationConverter
-Basic test to see environment works
+Allows the conversion math notations.
 
 ## Environment requirements
 *	Ubuntu 14.04 or 16.04
