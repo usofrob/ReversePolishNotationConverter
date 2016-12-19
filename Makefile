@@ -1,28 +1,28 @@
 CC=gcc
-CFLAGS=-Wall -lcheck_pic -pthread -lrt -lm -lsubunit
-LDFLAGS=-pthread -lcheck_pic -lrt -lm -lsubunit
-
-SOURCES=
+AR=ar
+CFLAGS=-c -Wall
+SOURCES=src/rpn_convert.c
 OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=bin/rpn_convert
+LIBRARY=lib/librpn_convert.a
 
+TESTFLAGS=-pthread -lcheck_pic -lrt -lm -lsubunit -Llib -lrpn_convert -Isrc
 TESTS=tests/test.c
 TEST_OBJECTS=$(TESTS:.c=.o)
 TEST_EXECUTABLE=bin/test_rpn_convert
 
-# all: $(SOURCES) $(EXECUTABLE)
+all: $(SOURCES) $(LIBRARY)
 
 test: $(TEST_EXECUTABLE)
     
-# $(EXECUTABLE): $(OBJECTS) 
-#	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+$(LIBRARY): $(OBJECTS)
+	$(AR) -rcs $@ $(OBJECTS)
 
-$(TEST_EXECUTABLE):
-	$(CC) $(TESTS) -o $@ $(LDFLAGS)
+$(TEST_EXECUTABLE): $(LIBRARY)
+	$(CC) $(TESTS) -o $@ $(TESTFLAGS)
 	bin/test_rpn_convert
 
-#.c.o:
-#	$(CC) $(CFLAGS) $< -o $@
+.c.o:
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm bin/*
+	rm -f bin/* src/*.o

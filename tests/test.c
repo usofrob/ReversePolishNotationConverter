@@ -5,9 +5,11 @@
 #include <check.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "rpn_convert.h"
 
 START_TEST (test_name)
 {
+	convert();
   /* unit test code */
   ck_assert_int_eq(5, 5);
 }

@@ -6,4 +6,12 @@ Basic test to see environment works
 *	Run install script (./scripts/installEnvironment.sh)
 
 ## Compiling
+*	make clean all
+
+## Testing
 *	make clean test
+
+## Library API basics
+The library defines these functions:
+### convert()
+Does nothing :)

@@ -11,4 +11,4 @@ function showError {
 
 sudo apt-get install check || showError "Installing check"
 
-mkdir -p bin
+mkdir -p bin lib
