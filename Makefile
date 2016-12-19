@@ -25,4 +25,4 @@ $(TEST_EXECUTABLE): $(LIBRARY)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f bin/* src/*.o
+	rm -f bin/* src/*.o lib/*
