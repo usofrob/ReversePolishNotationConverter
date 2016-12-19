@@ -23,6 +23,20 @@ START_TEST (basic)
 }
 END_TEST
 
+START_TEST (basic_plus)
+{
+	char infix[] = "a+b";
+	char rpn[MAX_STRING_LENGTH] = "";
+	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+
+	/* unit test code */
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+
+	ck_assert_str_eq(rpn, "ab+");
+}
+END_TEST
+
 Suite * test_suite(void)
 {
 	Suite *s;
@@ -33,6 +47,7 @@ Suite * test_suite(void)
 	tc_core = tcase_create("Infix_to_RPN");
 	
 	tcase_add_test(tc_core, basic);
+	tcase_add_test(tc_core, basic_plus);
 	suite_add_tcase(s, tc_core);
 	
 	return s;
