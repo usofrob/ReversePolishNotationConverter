@@ -7,11 +7,19 @@
 #include <stdlib.h>
 #include "rpn_convert.h"
 
+#define MAX_STRING_LENGTH 128
+
 START_TEST (test_name)
 {
-	convert();
-  /* unit test code */
-  ck_assert_int_eq(5, 5);
+	char infix[] = "a";
+	char rpn[MAX_STRING_LENGTH] = "";
+	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+
+	/* unit test code */
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+
+	ck_assert_str_eq(rpn, "a");
 }
 END_TEST
 
