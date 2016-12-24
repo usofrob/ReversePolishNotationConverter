@@ -9,6 +9,13 @@ function showError {
 # mkdir -p bin/ || showError "Creating bin directory"
 # wget http://sourceforge.net/projects/plantuml/files/plantuml.jar/download -O bin/plantuml.jar || showError "Downloading plantuml.jar"
 
-sudo apt-get install check || showError "Installing check"
+CHECK_INSTALLED=$(apt-cache policy check | grep Installed | grep '(none)')
+# This will return nothing (empty string) if the application is already installed
+if [ ! -z "${CHECK_INSTALLED}" ]; then
+	sudo apt-get install check || showError "Installing check"
+else
+	echo "check is already installed"
+fi
 
+rm -rf bin lib
 mkdir -p bin lib
