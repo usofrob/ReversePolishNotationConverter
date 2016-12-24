@@ -5,7 +5,7 @@ SOURCES=src/rpn_convert.c
 OBJECTS=$(SOURCES:.c=.o)
 LIBRARY=lib/librpn_convert.a
 
-TESTFLAGS=-pthread -lcheck_pic -lrt -lm -lsubunit -Llib -lrpn_convert -Isrc
+TESTFLAGS:=$(shell pkg-config --cflags --libs check) -Llib -lrpn_convert -Isrc
 TESTS=tests/test.c
 TEST_OBJECTS=$(TESTS:.c=.o)
 TEST_EXECUTABLE=bin/test_rpn_convert
