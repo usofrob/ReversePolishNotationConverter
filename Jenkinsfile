@@ -5,6 +5,8 @@ import org.jenkinsci.plugins.workflow.support.steps.build.*
 
 node {
 	stage ('Install') {
+		print env
+		print params
 		sh './scripts/installEnvironment.sh'
 		sh 'make clean'
 	}
