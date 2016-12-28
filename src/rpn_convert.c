@@ -2,6 +2,36 @@
 
 #include <string.h>
 
+/**
+ * Converts the operator to it's precedence
+ * A lower number means it happens first (has precedence)
+ */
+int precedence(char operator)
+{
+	int returnPrecedence = 0;
+	
+	switch(operator)
+	{
+		case '^':
+			returnPrecedence = 1;
+			break;
+		case '/':
+			returnPrecedence = 2;
+			break;
+		case '*':
+			returnPrecedence = 3;
+			break;
+		case '-':
+			returnPrecedence = 4;
+			break;
+		case '+':
+			returnPrecedence = 5;
+			break;
+	}
+		
+	return returnPrecedence;
+}
+
 rpn_return_code_t convert(char* infix, 
             uint32_t infix_length,
             char* rpn,
@@ -20,7 +50,8 @@ rpn_return_code_t convert(char* infix,
 	}
 	else if(6 == infix_length)
 	{
-		if ('-' == infix[3])
+		// If the second operator has precedence over the first
+		if (precedence(infix[3]) < precedence(infix[1]))
 		{
 			rpn[1] = infix[2];
 			rpn[2] = infix[4];
