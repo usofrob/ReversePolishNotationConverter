@@ -20,10 +20,20 @@ rpn_return_code_t convert(char* infix,
 	}
 	else if(6 == infix_length)
 	{
-		rpn[1] = infix[2];
-		rpn[2] = infix[4];
-		rpn[3] = infix[3];
-		rpn[4] = infix[1];
+		if ('-' == infix[3])
+		{
+			rpn[1] = infix[2];
+			rpn[2] = infix[4];
+			rpn[3] = infix[3];
+			rpn[4] = infix[1];
+		}
+		else
+		{
+			rpn[1] = infix[2];
+			rpn[2] = infix[1];
+			rpn[3] = infix[4];
+			rpn[4] = infix[3];
+		}
 	}
 	else
 	{
