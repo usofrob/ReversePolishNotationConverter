@@ -104,18 +104,20 @@ END_TEST
 
 START_TEST (error_checking)
 {
-	char infix[] = "A";
+	char infix[MAX_STRING_LENGTH] = "A";
 	char rpn[MAX_STRING_LENGTH] = "";
-	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+	rpn_return_code_t return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 
 	ck_assert_msg(RC_FAILURE == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	strcpy(infix, "&");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 	ck_assert_msg(RC_FAILURE == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	strcpy(infix, "---");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 	ck_assert_msg(RC_FAILURE == return_code,
 		"Was expecting failure, but found %d", return_code);
 }
