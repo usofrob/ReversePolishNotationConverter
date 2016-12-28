@@ -59,6 +59,20 @@ START_TEST (basic_plus_minus_multiply_divide_exponent)
 }
 END_TEST
 
+START_TEST (three_variables)
+{
+	char infix[] = "a+b-c";
+	char rpn[MAX_STRING_LENGTH] = "";
+	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+
+	/* unit test code */
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+
+	ck_assert_str_eq(rpn, "abc-+");
+}
+END_TEST
+
 Suite * test_suite(void)
 {
 	Suite *s;
@@ -70,6 +84,7 @@ Suite * test_suite(void)
 	
 	tcase_add_test(tc_core, basic);
 	tcase_add_test(tc_core, basic_plus_minus_multiply_divide_exponent);
+	tcase_add_test(tc_core, three_variables);
 	suite_add_tcase(s, tc_core);
 	
 	return s;
