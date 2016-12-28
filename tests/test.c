@@ -76,6 +76,24 @@ START_TEST (three_variables)
 		"Was expecting success, but found %d", return_code);
 	ck_assert_str_eq(rpn, "ab-c+");
 
+	strcpy(infix, "a-b^c");
+	return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "abc^-");
+
+	strcpy(infix, "a/b*c");
+	return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "ab/c*");
+
+	strcpy(infix, "a^b+c");
+	return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "ab^c+");
+
 }
 END_TEST
 
