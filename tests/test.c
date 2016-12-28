@@ -102,6 +102,25 @@ START_TEST (three_variables)
 }
 END_TEST
 
+START_TEST (error_checking)
+{
+	char infix[] = "A";
+	char rpn[MAX_STRING_LENGTH] = "";
+	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+
+	ck_assert_msg(RC_FAILURE == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	strcpy(infix, "&");
+	ck_assert_msg(RC_FAILURE == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	strcpy(infix, "---");
+	ck_assert_msg(RC_FAILURE == return_code,
+		"Was expecting failure, but found %d", return_code);
+}
+END_TEST
+
 Suite * test_suite(void)
 {
 	Suite *s;
@@ -114,6 +133,7 @@ Suite * test_suite(void)
 	tcase_add_test(tc_core, basic);
 	tcase_add_test(tc_core, basic_plus_minus_multiply_divide_exponent);
 	tcase_add_test(tc_core, three_variables);
+	tcase_add_test(tc_core, error_checking);
 	suite_add_tcase(s, tc_core);
 	
 	return s;
