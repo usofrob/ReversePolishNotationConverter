@@ -14,5 +14,12 @@ rpn_return_code_t convert(char* infix,
 		rpn[1] = rpn[2];
 		rpn[2] = temp;
 	}
+	else if(6 == infix_length)
+	{
+		rpn[1] = infix[2];
+		rpn[2] = infix[4];
+		rpn[3] = infix[3];
+		rpn[4] = infix[1];
+	}
 	return RC_SUCCESS;
 }
