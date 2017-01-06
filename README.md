@@ -15,4 +15,4 @@ Allows the conversion math notations.
 The library defines these functions:
 ### convert()
 Converts from infix notation to Reverse Polish Notation (RPN).
-See 'rpn_convert.h' for more details
+See 'rpn_convert.h' for more details on parameters and usage.

@@ -20,6 +20,10 @@ typedef enum rpn_return_code_t
  *  rpn : The pre-allocated character string for the RPN return value
  *  rpn_length : The length of the space reserved for rpn string
  * 
+ * NOTE: Valid characters for the infix notation is any lower case
+ * 		 letter 'a' through 'z' and these characters: '+', '-', '*',
+ * 		 '/', '^'.
+ * 
  * returns type rpn_return_code_t
  */
 rpn_return_code_t convert(char* infix, 
