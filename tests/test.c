@@ -102,6 +102,32 @@ START_TEST (three_variables)
 }
 END_TEST
 
+START_TEST (more_variables)
+{
+	char infix[MAX_STRING_LENGTH] = "";
+	char rpn[MAX_STRING_LENGTH] = "";
+	rpn_return_code_t return_code = RC_FAILURE;
+
+	strcpy(infix, "a+b-c*d");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "abcd*-+");
+
+	strcpy(infix, "d/a-b/c");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "da/bc/-");
+
+	strcpy(infix, "a-b^c^d/e");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "abc^d^e/-");
+}
+END_TEST
+
 START_TEST (error_checking)
 {
 	char infix[MAX_STRING_LENGTH] = "A";
@@ -135,6 +161,7 @@ Suite * test_suite(void)
 	tcase_add_test(tc_core, basic);
 	tcase_add_test(tc_core, basic_plus_minus_multiply_divide_exponent);
 	tcase_add_test(tc_core, three_variables);
+	tcase_add_test(tc_core, more_variables);
 	tcase_add_test(tc_core, error_checking);
 	suite_add_tcase(s, tc_core);
 	
