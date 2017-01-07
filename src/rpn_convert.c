@@ -7,6 +7,8 @@
 /**
  * Converts the operator to it's precedence
  * A lower number means it happens first (has precedence)
+ * 
+ * returns precedence of an operator, 0 if not found
  */
 int calc_precedence(char operator)
 {
@@ -36,6 +38,12 @@ int calc_precedence(char operator)
 
 /**
  * Check for valid characters in the calculation string
+ * 
+ * Input:
+ *   calculation_string : The pre-allocated character string to check
+ *   calculation_string_length : Length of string to check
+ * Output:
+ *   determined_rpn_length : calculated length of rpn string
  * return RC_SUCCESS if characters are within range
  *        RC_FAILURE if any character is invalid
  */
@@ -50,7 +58,6 @@ rpn_return_code_t check_characters(char* calculation_string,
 	
 	for(; index < calculation_string_length; ++index)
 	{
-		//~ printf("[%d] = %d\n", index, calculation_string[index]);
 		// look for acceptable values
 		if( (calculation_string[index] >= 'a') &&
 		    (calculation_string[index] <= 'z') )
@@ -97,8 +104,17 @@ rpn_return_code_t check_characters(char* calculation_string,
 }
 
 /**
+ * Determines the lowest precedence operator from the given range.
  * Pass the complete string
  * Include every character that hasn't been used yet
+ * 
+ * Input:
+ *   infix : The pre-allocated character string in infix notation
+ *   index_start : The first character of the infix string to search
+ *   index_stop : The last character of the infix string to search (inclusive)
+ * Output:
+ *   index_min_operator : index into infix of the least precedence operator
+ * Returns type rpn_return_code_t
  */
 rpn_return_code_t search_for_min_operator(char* infix, 
 										  int32_t index_start,
@@ -111,6 +127,7 @@ rpn_return_code_t search_for_min_operator(char* infix,
 	int max_precedence = 0;
 	int paren_count = 0; // Keep track of the number of parens we are deep
 	//~ printf("start%d stop%d\n", index_start, index_stop);
+	
 	// search backwards so that ties go to the first in the string
 	for(int32_t index = index_stop; index >= index_start; --index)
 	{
@@ -129,7 +146,6 @@ rpn_return_code_t search_for_min_operator(char* infix,
 			continue;
 		}
 		
-		//~ printf("index%d\n", index);
 		//~ printf("[%d]=%c\n", index, infix[index]);
 		// If the precedence is greater than the previous max
 		precedence = calc_precedence(infix[index]);
@@ -140,7 +156,6 @@ rpn_return_code_t search_for_min_operator(char* infix,
 			return_value = RC_SUCCESS;
 			max_precedence = precedence;
 			(*index_min_operator) = index;
-		    //~ printf("found [%d]=%c\n", index, infix[index]);
 		}
 	}
 	//~ printf("found [%d]=%c\n", *index_min_operator, infix[*index_min_operator]);
@@ -151,8 +166,14 @@ rpn_return_code_t search_for_min_operator(char* infix,
 /**
  * Determines the index of the matching '('
  * index_start should refer to the '(' to match
- * index_stop should be the last char to check
- * index_matching is updated upon success with the matching ')'
+ * 
+ * Input:
+ *   infix : The pre-allocated character string in infix notation
+ *   index_start : Index to the first '(' of the infix string to search
+ *   index_stop : The last char to check (inclusive)
+ * Output:
+ *   index_matching : index of matching ')'
+ * Returns type rpn_return_code_t
  */
 rpn_return_code_t matching_paren(char* infix, 
 								 int32_t index_start,
@@ -192,21 +213,30 @@ rpn_return_code_t matching_paren(char* infix,
 }								 
 
 /**
+ * Determines a parmeter to an operation, automatically fills in rpn
  * Pass the complete string
  * Include every character that hasn't been used yet
+ * 
+ * Input:
+ *   infix : The pre-allocated character string in infix notation
+ *   index_start : The first character of the infix string to search
+ *   index_stop : The last character of the infix string to search (inclusive)
+ * Input/Output:
+ *   rpn : The pre-allocated character string for the RPN return value
+ *   rpn_stop : The last undefined character of the rpn string
+ * Returns type rpn_return_code_t
  */
-rpn_return_code_t determine_value(char* infix, 
+rpn_return_code_t determine_value(char* infix,
 								  int32_t index_start,
 								  int32_t index_stop,
-								  char* rpn, 
-								  int32_t* rpn_start,
+								  char* rpn,
 								  int32_t* rpn_stop)
 {
 	rpn_return_code_t return_value = RC_FAILURE;
 	uint32_t current_operator_index = 0;
 	int32_t matching_index = 0;
 	
-	//~ printf("rpn_start=%d rpn_stop=%d\n", *rpn_start, *rpn_stop);
+	//~ printf("rpn_stop=%d\n", *rpn_stop);
 	
 	// Check important parameters
 	if(rpn_stop < 0)
@@ -222,7 +252,6 @@ rpn_return_code_t determine_value(char* infix,
 	// If there is only one variable left, then it must be the end
 	if(index_stop == index_start)
 	{
-		//~ printf("leaf[%d]=%c\n", index_stop, infix[index_stop]);
 		// TODO: check char is a variable
 		rpn[(*rpn_stop)] = infix[index_stop];
 		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
@@ -235,7 +264,7 @@ rpn_return_code_t determine_value(char* infix,
 			matching_index == index_stop)
 	{
 		// Remove them from the search range
-		determine_value(infix, index_start + 1, index_stop - 1, rpn, rpn_start, rpn_stop);
+		determine_value(infix, index_start + 1, index_stop - 1, rpn, rpn_stop);
 		return_value = RC_SUCCESS;
 	}
 	else
@@ -244,16 +273,17 @@ rpn_return_code_t determine_value(char* infix,
 		
 		// There must still be an operator, find it and the parameters
 		search_for_min_operator(infix, index_start, index_stop, &current_operator_index);
-		//   Put it on the rightmost available
+		
 		rpn[(*rpn_stop)] = infix[current_operator_index];
 		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
 		(*rpn_stop)--;
+		
 		// determine right side
-		determine_value(infix, current_operator_index + 1, index_stop, rpn, rpn_start, rpn_stop);
-		//   Put in next slot
+		determine_value(infix, current_operator_index + 1, index_stop, rpn, rpn_stop);
+		
 		// determine left side
-		determine_value(infix, index_start, current_operator_index - 1, rpn, rpn_start, rpn_stop);
-		//   Put in next slot
+		determine_value(infix, index_start, current_operator_index - 1, rpn, rpn_stop);
+		
 		return_value = RC_SUCCESS;
 	}
 	
@@ -264,13 +294,16 @@ rpn_return_code_t determine_value(char* infix,
 rpn_return_code_t convert(char* infix, 
             uint32_t infix_length,
             char* rpn,
-            uint32_t rpn_length)
+            uint32_t* rpn_length)
 {
 	uint32_t last_used_char = infix_length - 1;
-	int32_t rpn_start = 0;
 	int32_t rpn_stop = 0;
 	uint32_t determined_rpn_length = 0;
 	if(check_characters(infix, infix_length, &determined_rpn_length) != RC_SUCCESS)
+	{
+		return RC_FAILURE;
+	}
+	if(determined_rpn_length + 1 > (*rpn_length))
 	{
 		return RC_FAILURE;
 	}
@@ -278,8 +311,7 @@ rpn_return_code_t convert(char* infix,
 	// The last character index to use is one less than the length
 	rpn_stop = determined_rpn_length - 1;
 	rpn[determined_rpn_length] = 0; // Ensure null terminated
-		
-	determine_value(infix, 0, last_used_char-1, rpn, &rpn_start, &rpn_stop);
+	(*rpn_length) = determined_rpn_length + 1;
 	
-	return RC_SUCCESS;
+	return determine_value(infix, 0, last_used_char-1, rpn, &rpn_stop);
 }
