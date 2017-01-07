@@ -1,6 +1,6 @@
 CC=gcc
 AR=ar
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall -std=gnu99
 SOURCES=src/rpn_convert.c
 OBJECTS=$(SOURCES:.c=.o)
 LIBRARY=lib/librpn_convert.a
