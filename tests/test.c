@@ -148,15 +148,15 @@ END_TEST
 
 START_TEST (basic_paren)
 {
-	char infix[] = "(a)";
+	char infix[MAX_STRING_LENGTH] = "";
 	char rpn[MAX_STRING_LENGTH] = "";
-	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+	rpn_return_code_t return_code = RC_FAILURE;
 
-	/* unit test code */
+	strcpy(infix, "(a+b)-c");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 	ck_assert_msg(RC_SUCCESS == return_code,
 		"Was expecting success, but found %d", return_code);
-
-	ck_assert_str_eq(rpn, "a");
+	ck_assert_str_eq(rpn, "ab+c-");
 }
 END_TEST
 
@@ -176,6 +176,12 @@ START_TEST (error_checking)
 		"Was expecting failure, but found %d", return_code);
 
 	strcpy(infix, "---");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_FAILURE == return_code,
+		"Was expecting failure, but found %d", return_code);
+		
+	// Not allowed to have () as the outside chars
+	strcpy(infix, "(a)");
 	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 	ck_assert_msg(RC_FAILURE == return_code,
 		"Was expecting failure, but found %d", return_code);
