@@ -149,6 +149,49 @@ rpn_return_code_t search_for_min_operator(char* infix,
 }
 
 /**
+ * Determines the index of the matching '('
+ * index_start should refer to the '(' to match
+ * index_stop should be the last char to check
+ * index_matching is updated upon success with the matching ')'
+ */
+rpn_return_code_t matching_paren(char* infix, 
+								 int32_t index_start,
+								 int32_t index_stop,
+								 int32_t* index_matching)
+{
+	rpn_return_code_t return_value = RC_FAILURE;
+	int paren_count = 0; // Keep track of the number of parens we are deep
+	*index_matching = -1;
+	
+	if(('(' != infix[index_start]) && (index_start >= index_stop))
+	{
+		return RC_FAILURE;
+	}
+	
+	for(int index = index_start; index <= index_stop; ++index)
+	{
+		
+		if('(' == infix[index])
+		{
+			paren_count++;
+		}
+		else if(')' == infix[index])
+		{
+			paren_count--;
+			if (paren_count == 0)
+			{
+				*index_matching = index;
+				return_value = RC_SUCCESS;
+				break;
+			}
+		}		
+		continue;
+	}
+	
+	return return_value;
+}								 
+
+/**
  * Pass the complete string
  * Include every character that hasn't been used yet
  */
@@ -161,6 +204,7 @@ rpn_return_code_t determine_value(char* infix,
 {
 	rpn_return_code_t return_value = RC_FAILURE;
 	uint32_t current_operator_index = 0;
+	int32_t matching_index = 0;
 	
 	//~ printf("rpn_start=%d rpn_stop=%d\n", *rpn_start, *rpn_stop);
 	
@@ -168,6 +212,11 @@ rpn_return_code_t determine_value(char* infix,
 	if(rpn_stop < 0)
 	{
 		return RC_FAILURE;
+	}
+	
+	if(RC_SUCCESS == matching_paren(infix, index_start, index_stop, &matching_index))
+	{
+		
 	}
 	
 	// If there is only one variable left, then it must be the end
@@ -181,7 +230,9 @@ rpn_return_code_t determine_value(char* infix,
 		return_value = RC_SUCCESS;
 	}
 	// Check to see if the first and last characters are ()
-	else if(('(' == infix[index_start]) && (')' == infix[index_stop]))
+	else if(('(' == infix[index_start]) && 
+			(RC_SUCCESS == matching_paren(infix, index_start, index_stop, &matching_index)) &&
+			matching_index == index_stop)
 	{
 		// Remove them from the search range
 		determine_value(infix, index_start + 1, index_stop - 1, rpn, rpn_start, rpn_stop);
