@@ -125,6 +125,24 @@ START_TEST (more_variables)
 	ck_assert_msg(RC_SUCCESS == return_code,
 		"Was expecting success, but found %d", return_code);
 	ck_assert_str_eq(rpn, "abc^d^e/-");
+	
+	strcpy(infix, "l/m^n*o-p");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "lmn^/o*p-");
+	
+	strcpy(infix, "a+b-c*d/e^f+g-h*i/j^k");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "abcdef^/*-+ghijk^/*-+");
+	
+	strcpy(infix, "a^b/c*d-e+f^g/h*i-j+k");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+	ck_assert_str_eq(rpn, "ab^c/d*e-fg^h/i*j-+k+");
 }
 END_TEST
 
