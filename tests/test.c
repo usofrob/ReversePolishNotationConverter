@@ -152,6 +152,12 @@ START_TEST (basic_paren)
 	char rpn[MAX_STRING_LENGTH] = "";
 	rpn_return_code_t return_code = RC_FAILURE;
 
+	// Are allowed to have () as the outside chars
+	strcpy(infix, "(a)");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting failure, but found %d", return_code);
+		
 	strcpy(infix, "(a+b)-c");
 	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 	ck_assert_msg(RC_SUCCESS == return_code,
@@ -163,10 +169,12 @@ END_TEST
 
 START_TEST (error_checking)
 {
-	char infix[MAX_STRING_LENGTH] = "A";
+	char infix[MAX_STRING_LENGTH] = "";
 	char rpn[MAX_STRING_LENGTH] = "";
-	rpn_return_code_t return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
+	rpn_return_code_t return_code = RC_SUCCESS;
 
+	strcpy(infix, "A");
+	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
 	ck_assert_msg(RC_FAILURE == return_code,
 		"Was expecting failure, but found %d", return_code);
 
@@ -180,11 +188,6 @@ START_TEST (error_checking)
 	ck_assert_msg(RC_FAILURE == return_code,
 		"Was expecting failure, but found %d", return_code);
 		
-	// Not allowed to have () as the outside chars
-	strcpy(infix, "(a)");
-	return_code = convert(infix, strlen(infix) + 1, rpn, sizeof(rpn));
-	ck_assert_msg(RC_FAILURE == return_code,
-		"Was expecting failure, but found %d", return_code);
 }
 END_TEST
 

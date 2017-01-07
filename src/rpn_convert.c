@@ -40,7 +40,8 @@ int calc_precedence(char operator)
  *        RC_FAILURE if any character is invalid
  */
 rpn_return_code_t check_characters(char* calculation_string, 
-	uint32_t calculation_string_length)
+	uint32_t calculation_string_length,
+	uint32_t* determined_rpn_length)
 {
 	rpn_return_code_t return_value = RC_FAILURE;
 	int has_operator = 0;
@@ -55,6 +56,7 @@ rpn_return_code_t check_characters(char* calculation_string,
 		    (calculation_string[index] <= 'z') )
 		{
 			has_variable = 1;
+			(*determined_rpn_length)++;
 			continue;
 		}
 		else if ( (calculation_string[index] == '^') ||
@@ -64,6 +66,12 @@ rpn_return_code_t check_characters(char* calculation_string,
 				  (calculation_string[index] == '+') )
 		{
 			has_operator = 1;
+			(*determined_rpn_length)++;
+			continue;
+		}
+		else if ( (calculation_string[index] == '(') ||
+				  (calculation_string[index] == ')') )
+		{
 			continue;
 		}
 		else
@@ -80,7 +88,7 @@ rpn_return_code_t check_characters(char* calculation_string,
 	 */
 	if( (index + 1 == calculation_string_length) &&
 		(1 == has_variable) &&
-		((1 == has_operator) || (2 == calculation_string_length)) )
+		((1 == has_operator) || (1 == (*determined_rpn_length))) )
 	{
 		return_value = RC_SUCCESS;
 	}
@@ -101,10 +109,26 @@ rpn_return_code_t search_for_min_operator(char* infix,
 	// Use the max value of the operator as the default
 	int precedence = 0;
 	int max_precedence = 0;
+	int paren_count = 0; // Keep track of the number of parens we are deep
 	//~ printf("start%d stop%d\n", index_start, index_stop);
 	// search backwards so that ties go to the first in the string
 	for(int32_t index = index_stop; index >= index_start; --index)
 	{
+		// Ignore anything within a parenthesis
+		if(')' == infix[index])
+		{
+			paren_count++;
+		}
+		if(paren_count > 0)
+		{
+			// always continue, but make sure to reduce count
+			if('(' == infix[index])
+			{
+				paren_count--;
+			}		
+			continue;
+		}
+		
 		//~ printf("index%d\n", index);
 		//~ printf("[%d]=%c\n", index, infix[index]);
 		// If the precedence is greater than the previous max
@@ -140,6 +164,12 @@ rpn_return_code_t determine_value(char* infix,
 	
 	//~ printf("rpn_start=%d rpn_stop=%d\n", *rpn_start, *rpn_stop);
 	
+	// Check important parameters
+	if(rpn_stop < 0)
+	{
+		return RC_FAILURE;
+	}
+	
 	// If there is only one variable left, then it must be the end
 	if(index_stop == index_start)
 	{
@@ -148,6 +178,13 @@ rpn_return_code_t determine_value(char* infix,
 		rpn[(*rpn_stop)] = infix[index_stop];
 		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
 		(*rpn_stop)--;
+		return_value = RC_SUCCESS;
+	}
+	// Check to see if the first and last characters are ()
+	else if(('(' == infix[index_start]) && (')' == infix[index_stop]))
+	{
+		// Remove them from the search range
+		determine_value(infix, index_start + 1, index_stop - 1, rpn, rpn_start, rpn_stop);
 		return_value = RC_SUCCESS;
 	}
 	else
@@ -180,11 +217,16 @@ rpn_return_code_t convert(char* infix,
 {
 	uint32_t last_used_char = infix_length - 1;
 	int32_t rpn_start = 0;
-	int32_t rpn_stop = (int32_t) last_used_char - 1;
-	if(check_characters(infix, infix_length) == RC_FAILURE)
+	int32_t rpn_stop = 0;
+	uint32_t determined_rpn_length = 0;
+	if(check_characters(infix, infix_length, &determined_rpn_length) != RC_SUCCESS)
 	{
 		return RC_FAILURE;
 	}
+	
+	// The last character index to use is one less than the length
+	rpn_stop = determined_rpn_length - 1;
+	rpn[determined_rpn_length] = 0; // Ensure null terminated
 		
 	determine_value(infix, 0, last_used_char-1, rpn, &rpn_start, &rpn_stop);
 	
