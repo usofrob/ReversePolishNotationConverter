@@ -146,6 +146,21 @@ START_TEST (more_variables)
 }
 END_TEST
 
+START_TEST (basic_paren)
+{
+	char infix[] = "(a)";
+	char rpn[MAX_STRING_LENGTH] = "";
+	rpn_return_code_t return_code = convert(infix, sizeof(infix), rpn, sizeof(rpn));
+
+	/* unit test code */
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting success, but found %d", return_code);
+
+	ck_assert_str_eq(rpn, "a");
+}
+END_TEST
+
+
 START_TEST (error_checking)
 {
 	char infix[MAX_STRING_LENGTH] = "A";
@@ -177,6 +192,7 @@ Suite * test_suite(void)
 	tc_core = tcase_create("Infix_to_RPN");
 	
 	tcase_add_test(tc_core, basic);
+	tcase_add_test(tc_core, basic_paren);
 	tcase_add_test(tc_core, basic_plus_minus_multiply_divide_exponent);
 	tcase_add_test(tc_core, three_variables);
 	tcase_add_test(tc_core, more_variables);
