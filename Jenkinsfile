@@ -18,4 +18,7 @@ node {
 	stage ('MemCheck') {
 		sh 'make mem-leak-check'
 	}
+	stage ('Coverage') {
+		sh 'make coverage'
+	}
 }

@@ -10,22 +10,27 @@ TESTS=tests/test.c
 TEST_OBJECTS=$(TESTS:.c=.o)
 TEST_EXECUTABLE=bin/test_rpn_convert
 
+COVERAGEFLAGS:=-fprofile-arcs -ftest-coverage
+
 all: $(SOURCES) $(LIBRARY)
 
 test: $(TEST_EXECUTABLE)
 
 mem-leak-check: test
 	valgrind --leak-check=yes --error-exitcode=2 bin/test_rpn_convert
-    
+
+coverage: test
+	gcov -a $(SOURCES)
+
 $(LIBRARY): $(OBJECTS)
 	$(AR) -rcs $@ $(OBJECTS)
 
 $(TEST_EXECUTABLE): $(LIBRARY)
-	$(CC) $(TESTS) -o $@ $(TESTFLAGS)
+	$(CC) $(TESTS) -o $@ $(TESTFLAGS) $(COVERAGEFLAGS)
 	bin/test_rpn_convert
 
 .c.o:
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(COVERAGEFLAGS) $< -o $@
 
 clean:
-	rm -f bin/* src/*.o lib/*
+	rm -f $(TEST_EXECUTABLE) $(OBJECTS) $(TEST_OBJECTS) $(LIBRARY) ./*.gcov ./*.gc* ./src/*.gc*
