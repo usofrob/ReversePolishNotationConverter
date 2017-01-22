@@ -10,7 +10,9 @@
 typedef enum rpn_return_code_t
 {
 	RC_SUCCESS, // Successful conversion
-	RC_FAILURE  // Failed conversion
+	RC_FAILURE,  // Generic failed conversion
+	RC_INVALID_CHAR,
+	RC_INVALID_INPUT_LENGTH
 } rpn_return_code_t;
 
 /**
@@ -42,7 +44,7 @@ typedef enum rpn_return_code_t
  */
 rpn_return_code_t convert(int infix_to_rpn,
             char* infix, 
-            uint32_t infix_length,
+            uint32_t* infix_length,
             char* rpn,
             uint32_t* rpn_length);
 

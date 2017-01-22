@@ -293,20 +293,20 @@ rpn_return_code_t determine_value(char* infix,
 /* See description in header file */
 rpn_return_code_t convert(int infix_to_rpn,
             char* infix, 
-            uint32_t infix_length,
+            uint32_t* infix_length,
             char* rpn,
             uint32_t* rpn_length)
 {
-	uint32_t last_used_char = infix_length - 1;
+	uint32_t last_used_char = (*infix_length) - 1;
 	int32_t rpn_stop = 0;
 	uint32_t determined_rpn_length = 0;
-	if(check_characters(infix, infix_length, &determined_rpn_length) != RC_SUCCESS)
+	if(check_characters(infix, *infix_length, &determined_rpn_length) != RC_SUCCESS)
 	{
-		return RC_FAILURE;
+		return RC_INVALID_CHAR;
 	}
 	if(determined_rpn_length + 1 > (*rpn_length))
 	{
-		return RC_FAILURE;
+		return RC_INVALID_INPUT_LENGTH;
 	}
 	
 	// The last character index to use is one less than the length
