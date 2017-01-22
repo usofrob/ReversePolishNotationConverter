@@ -13,6 +13,7 @@
 int calc_precedence(char operator)
 {
 	int returnPrecedence = 0;
+	void *something = malloc(1234);
 	
 	switch(operator)
 	{

@@ -13,6 +13,9 @@ TEST_EXECUTABLE=bin/test_rpn_convert
 all: $(SOURCES) $(LIBRARY)
 
 test: $(TEST_EXECUTABLE)
+
+mem-leak-check: test
+	valgrind --leak-check=yes --error-exitcode=2 bin/test_rpn_convert
     
 $(LIBRARY): $(OBJECTS)
 	$(AR) -rcs $@ $(OBJECTS)

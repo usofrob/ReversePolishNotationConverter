@@ -15,4 +15,7 @@ node {
 	stage ('Test') {
 		sh 'make test'
 	}
+	stage ('MemCheck') {
+		sh 'make mem-leak-check'
+	}
 }

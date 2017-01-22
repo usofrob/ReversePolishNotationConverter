@@ -17,5 +17,13 @@ else
 	echo "check is already installed"
 fi
 
+VALGRIND_INSTALLED=$(apt-cache policy valgrind | grep Installed | grep '(none)')
+# This will return nothing (empty string) if the application is already installed
+if [ ! -z "${VALGRIND_INSTALLED}" ]; then
+	sudo apt-get install valgrind || showError "Installing valgrind"
+else
+	echo "valgrind is already installed"
+fi
+
 rm -rf bin lib
 mkdir -p bin lib
