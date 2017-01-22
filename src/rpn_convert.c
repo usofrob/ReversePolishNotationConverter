@@ -291,7 +291,8 @@ rpn_return_code_t determine_value(char* infix,
 }
 
 /* See description in header file */
-rpn_return_code_t convert(char* infix, 
+rpn_return_code_t convert(int infix_to_rpn,
+            char* infix, 
             uint32_t infix_length,
             char* rpn,
             uint32_t* rpn_length)

@@ -30,5 +30,5 @@ There are length, parameters and range checks to make sure things are safe.
 ## Library API basics
 The library defines these functions:
 ### convert()
-Converts from infix notation to Reverse Polish Notation (RPN).
+Converts from infix notation to Reverse Polish Notation (RPN) or from RPN to infix notation.
 See 'rpn_convert.h' for more details on parameters and usage.
