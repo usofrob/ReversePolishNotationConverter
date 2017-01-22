@@ -10,7 +10,8 @@ TESTS=tests/test.c
 TEST_OBJECTS=$(TESTS:.c=.o)
 TEST_EXECUTABLE=bin/test_rpn_convert
 
-COVERAGEFLAGS:=-fprofile-arcs -ftest-coverage
+# COVERAGEFLAGS:=-fprofile-arcs -ftest-coverage
+COVERAGEFLAGS:=--coverage
 
 all: $(SOURCES) $(LIBRARY)
 
@@ -20,7 +21,7 @@ mem-leak-check: test
 	valgrind --leak-check=yes --error-exitcode=2 bin/test_rpn_convert
 
 coverage: test
-	gcov -a $(SOURCES)
+	scripts/testCoverageCheck.sh
 
 $(LIBRARY): $(OBJECTS)
 	$(AR) -rcs $@ $(OBJECTS)
