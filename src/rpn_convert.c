@@ -297,22 +297,43 @@ rpn_return_code_t convert(int infix_to_rpn,
             char* rpn,
             uint32_t* rpn_length)
 {
-	uint32_t last_used_char = (*infix_length) - 1;
-	int32_t rpn_stop = 0;
-	uint32_t determined_rpn_length = 0;
-	if(check_characters(infix, *infix_length, &determined_rpn_length) != RC_SUCCESS)
+	char *input_str = NULL;
+	char *output_str = NULL;
+	uint32_t *input_length = 0;
+	uint32_t *output_length = 0;
+	uint32_t last_used_char = 0;
+	int32_t output_stop = 0;
+	uint32_t determined_length = 0;
+	
+	if (infix_to_rpn)
+	{
+		input_str = infix;
+		input_length = infix_length;
+		output_str = rpn;
+		output_length = rpn_length;
+	}
+	else
+	{
+		input_str = rpn;
+		input_length = rpn_length;
+		output_str = infix;
+		output_length = infix_length;
+	}
+	last_used_char = (*input_length) - 1;
+
+	if(check_characters(input_str, *input_length, &determined_length) != RC_SUCCESS)
 	{
 		return RC_INVALID_CHAR;
 	}
-	if(determined_rpn_length + 1 > (*rpn_length))
+	if(determined_length + 1 > (*output_length))
 	{
 		return RC_INVALID_INPUT_LENGTH;
 	}
 	
 	// The last character index to use is one less than the length
-	rpn_stop = determined_rpn_length - 1;
-	rpn[determined_rpn_length] = 0; // Ensure null terminated
-	(*rpn_length) = determined_rpn_length + 1;
+	output_stop = determined_length - 1;
+	output_str[determined_length] = 0; // Ensure null terminated
+	(*output_length) = determined_length + 1;
 	
-	return determine_value(infix, 0, last_used_char-1, rpn, &rpn_stop);
+	return determine_value(input_str, 0, last_used_char-1, output_str, &output_stop);
 }
