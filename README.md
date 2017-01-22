@@ -18,7 +18,14 @@ There are length, parameters and range checks to make sure things are safe.
 *	make clean all
 
 ## Testing
+### Unit test
 *	make clean test
+
+### Memory Usage Check
+*	make clean mem-leak-check
+
+### Code Coverage Check
+*	make clean coverage
 
 ## Library API basics
 The library defines these functions:
