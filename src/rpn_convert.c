@@ -31,9 +31,6 @@ int calc_precedence(char operator)
 		case '+':
 			returnPrecedence = 5;
 			break;
-		case '$':
-			returnPrecedence = 6;
-			break;
 	}
 		
 	return returnPrecedence;
