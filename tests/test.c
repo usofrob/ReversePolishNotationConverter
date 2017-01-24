@@ -83,59 +83,16 @@ END_TEST
 
 START_TEST (basic_paren)
 {
-	char infix[MAX_STRING_LENGTH] = "";
-	char rpn[MAX_STRING_LENGTH] = "";
-	uint32_t rpn_length = 0, infix_length = 0;
-	rpn_return_code_t return_code = RC_FAILURE;
-
-	// Are allowed to have () as the outside chars
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "(a)");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting failure, but found %d", return_code);
-		
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "(a+b)-c");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab+c-");
+	forward_and_reverse("(a)", RC_SUCCESS, "a", RC_SUCCESS, "a");
+	forward_and_reverse("(a+b)-c", RC_SUCCESS, "ab+c-", RC_SUCCESS, "(a+b)-c");
 }
 END_TEST
 
 START_TEST (advanced_paren)
 {
-	char infix[MAX_STRING_LENGTH] = "";
-	char rpn[MAX_STRING_LENGTH] = "";
-	uint32_t rpn_length = 0, infix_length = 0;
-	rpn_return_code_t return_code = RC_FAILURE;
-		
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "((l/(m^n))*o)-p");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "lmn^/o*p-");
-		
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "((v/w)^x)*(y-z)");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "vw/x^yz-*");
-		
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "(a+g)*(((b-a)+c)^(c+(e*(d^f))))");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ag+ba-c+cedf^*+^*");
+	forward_and_reverse("((l/(m^n))*o)-p", RC_SUCCESS, "lmn^/o*p-", RC_SUCCESS, "((l/(m^n))*o)-p");
+	forward_and_reverse("((v/w)^x)*(y-z)", RC_SUCCESS, "vw/x^yz-*", RC_SUCCESS, "((v/w)^x)*(y-z)");
+	forward_and_reverse("(a+g)*(((b-a)+c)^(c+(e*(d^f))))", RC_SUCCESS, "ag+ba-c+cedf^*+^*", RC_SUCCESS, "(a+g)*(((b-a)+c)^(c+(e*(d^f))))");
 }
 END_TEST
 
