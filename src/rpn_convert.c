@@ -81,14 +81,14 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 			}
 			else
 			{
-				if (has_operator)
-				{
-					(*determined_length) += 3;
-				}
-				else
-				{
-					(*determined_length)++;
-				}
+				//~ if (has_operator)
+				//~ {
+					//~ (*determined_length) += 3;
+				//~ }
+				//~ else
+				//~ {
+				(*determined_length)++;
+				//~ }
 			}
 			has_operator = 1;
 			continue;
