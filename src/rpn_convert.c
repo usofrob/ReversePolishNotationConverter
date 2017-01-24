@@ -6,13 +6,25 @@
 
 
 /**
- * Generic return code meanings
+ * Parameter passes
  */
 typedef enum param_side_t
 {
 	PARAM_FIRST,
 	PARAM_SECOND
 } param_side_t;
+
+/**
+ * character type
+ */
+typedef enum calculation_char_type_t
+{
+	CALCULATION_TYPE_OPERATOR,
+	CALCULATION_TYPE_VARIABLE,
+	CALCULATION_TYPE_LEFT_PAREN,
+	CALCULATION_TYPE_RIGHT_PAREN,
+	CALCULATION_TYPE_UNKNOWN
+} calculation_char_type_t;
 
 /**
  * Converts the operator to it's precedence
@@ -62,26 +74,37 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 	uint32_t calculation_string_length,
 	uint32_t* determined_length)
 {
-	rpn_return_code_t return_value = RC_FAILURE;
+	rpn_return_code_t return_value = RC_INVALID_CHAR;
 	int has_operator = 0;
 	int has_variable = 0;
+	int has_left_paren = 0;
+	int has_right_paren = 0;
 	int index = 0;
+	calculation_char_type_t last_char_type = CALCULATION_TYPE_UNKNOWN;
 	
 	for(; index < calculation_string_length; ++index)
 	{
+		//~ printf("[%d] %c %d\n", index, calculation_string[index], last_char_type);
 		// look for acceptable values
 		if( (calculation_string[index] >= 'a') &&
-		    (calculation_string[index] <= 'z') )
+		    (calculation_string[index] <= 'z') &&
+		    ((!infix_to_rpn) ||
+		     ((last_char_type != CALCULATION_TYPE_VARIABLE) &&
+		      (last_char_type != CALCULATION_TYPE_RIGHT_PAREN))) )
 		{
 			has_variable++;
 			(*determined_length)++;
+			last_char_type = CALCULATION_TYPE_VARIABLE;
 			continue;
 		}
-		else if ( (calculation_string[index] == '^') ||
+		else if (((calculation_string[index] == '^') ||
 				  (calculation_string[index] == '/') ||
 				  (calculation_string[index] == '*') ||
 				  (calculation_string[index] == '-') ||
-				  (calculation_string[index] == '+') )
+				  (calculation_string[index] == '+')) &&
+				   ((!infix_to_rpn) ||
+				    ((last_char_type != CALCULATION_TYPE_OPERATOR) &&
+				     (last_char_type != CALCULATION_TYPE_LEFT_PAREN))))
 		{
 			// Add 2 for every operator to account for () for every 
 			// operator more than 1
@@ -101,12 +124,28 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 				}
 			}
 			has_operator++;
+			last_char_type = CALCULATION_TYPE_OPERATOR;
 			continue;
 		}
 		else if ((infix_to_rpn) && 
-				 ((calculation_string[index] == '(') ||
-				  (calculation_string[index] == ')')))
+				 (calculation_string[index] == '(') &&
+				 (last_char_type != CALCULATION_TYPE_VARIABLE) &&
+				 (last_char_type != CALCULATION_TYPE_RIGHT_PAREN))
 		{
+			// Check to see if the '(' contains a '(' or operator before it
+			// and a '(' or variable after it
+			has_left_paren++;
+			last_char_type = CALCULATION_TYPE_LEFT_PAREN;
+			continue;
+		}
+		else if ((infix_to_rpn) && 
+				 (calculation_string[index] == ')') &&
+				 (last_char_type != CALCULATION_TYPE_OPERATOR) &&
+				 (last_char_type != CALCULATION_TYPE_LEFT_PAREN))
+		{
+			// Check to see if the '(' contains a '' or operator before it
+			has_right_paren++;
+			last_char_type = CALCULATION_TYPE_RIGHT_PAREN;
 			continue;
 		}
 		else
@@ -122,8 +161,10 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 	 * AND There is a variable
 	 * AND there is an operation for any calculation longer than 1 variable
 	 */
+	//~ printf("operator=%d variable=%d index=%d calculation_string_length=%d\n", has_operator, has_variable, index, calculation_string_length);
 	if( (index + 1 == calculation_string_length) &&
-		(has_operator == has_variable - 1) )
+		(has_operator == has_variable - 1) &&
+		(has_left_paren == has_right_paren) )
 	{
 		return_value = RC_SUCCESS;
 	}
@@ -209,11 +250,6 @@ rpn_return_code_t matching_paren(char* infix,
 	int paren_count = 0; // Keep track of the number of parens we are deep
 	*index_matching = -1;
 	
-	if(('(' != infix[index_start]) && (index_start >= index_stop))
-	{
-		return RC_FAILURE;
-	}
-	
 	for(int index = index_start; index <= index_stop; ++index)
 	{
 		
@@ -267,23 +303,22 @@ rpn_return_code_t determine_rpn(char* infix,
 		return RC_FAILURE;
 	}
 	
-	if(RC_SUCCESS == matching_paren(infix, index_start, index_stop, &matching_index))
-	{
-		
-	}
-	
 	// If there is only one variable left, then it must be the end
 	if(index_stop == index_start)
 	{
 		// TODO: check char is a variable
-		rpn[(*rpn_stop)] = infix[index_stop];
-		(*rpn_stop)--;
-		return_value = RC_SUCCESS;
+		if( (infix[index_stop] >= 'a') &&
+			(infix[index_stop] <= 'z') )
+		{
+			rpn[(*rpn_stop)] = infix[index_stop];
+			(*rpn_stop)--;
+			return_value = RC_SUCCESS;
+		}
 	}
 	// Check to see if the first and last characters are ()
-	else if(('(' == infix[index_start]) && 
-			(RC_SUCCESS == matching_paren(infix, index_start, index_stop, &matching_index)) &&
-			matching_index == index_stop)
+   else if(('(' == infix[index_start]) &&
+		   (RC_SUCCESS == matching_paren(infix, index_start, index_stop, &matching_index)) &&
+		   (matching_index == index_stop))
 	{
 		// Remove them from the search range
 		determine_rpn(infix, index_start + 1, index_stop - 1, rpn, rpn_stop);
@@ -291,7 +326,7 @@ rpn_return_code_t determine_rpn(char* infix,
 	}
 	else
 	{
-		// TODO: look at return codes
+		// No need to look at return codes, format has been pre-checked
 		
 		// There must still be an operator, find it and the parameters
 		search_for_min_operator(infix, index_start, index_stop, &current_operator_index);
@@ -345,7 +380,7 @@ rpn_return_code_t determine_infix(char* rpn,
 	}
 	else
 	{
-		// TODO: look at return codes
+		// No need to look at return codes, format has been pre-checked
 		
 		// There must still be an operator, determine next set
 		next_operator = rpn[*index_stop];

@@ -13,14 +13,15 @@ void forward_and_reverse(char* infix_input,
                          rpn_return_code_t expected_infix_return_code,
                          char* rpn_output,
                          rpn_return_code_t expected_rpn_return_code,
-                         char* infix_output)
+                         char* infix_output,
+                         int line_number)
 {
 	char infix[MAX_STRING_LENGTH] = "";
 	char rpn[MAX_STRING_LENGTH] = "";
 	uint32_t rpn_length = 0, infix_length = 0;
 	rpn_return_code_t return_code = RC_FAILURE;
 	
-	//~ printf("parameters %s %d %s %d %s\n", infix_input, expected_infix_return_code, rpn_output, expected_rpn_return_code, infix_output);
+	//~ printf("parameters %s %d %s %d %s %d\n", infix_input, expected_infix_return_code, rpn_output, expected_rpn_return_code, infix_output, line_number);
 	/* unit test code */
 	rpn_length = sizeof(rpn);
 	strcpy(infix, infix_input);
@@ -45,54 +46,54 @@ void forward_and_reverse(char* infix_input,
 
 START_TEST (basic)
 {
-	forward_and_reverse("a", RC_SUCCESS, "a", RC_SUCCESS, "a");
+	forward_and_reverse("a", RC_SUCCESS, "a", RC_SUCCESS, "a", __LINE__);
 }
 END_TEST
 
 START_TEST (basic_plus_minus_multiply_divide_exponent)
 {
-	forward_and_reverse("a+b", RC_SUCCESS, "ab+", RC_SUCCESS, "a+b");
-	forward_and_reverse("a-b", RC_SUCCESS, "ab-", RC_SUCCESS, "a-b");
-	forward_and_reverse("a*b", RC_SUCCESS, "ab*", RC_SUCCESS, "a*b");
-	forward_and_reverse("a/b", RC_SUCCESS, "ab/", RC_SUCCESS, "a/b");
-	forward_and_reverse("a^b", RC_SUCCESS, "ab^", RC_SUCCESS, "a^b");
+	forward_and_reverse("a+b", RC_SUCCESS, "ab+", RC_SUCCESS, "a+b", __LINE__);
+	forward_and_reverse("a-b", RC_SUCCESS, "ab-", RC_SUCCESS, "a-b", __LINE__);
+	forward_and_reverse("a*b", RC_SUCCESS, "ab*", RC_SUCCESS, "a*b", __LINE__);
+	forward_and_reverse("a/b", RC_SUCCESS, "ab/", RC_SUCCESS, "a/b", __LINE__);
+	forward_and_reverse("a^b", RC_SUCCESS, "ab^", RC_SUCCESS, "a^b", __LINE__);
 }
 END_TEST
 
 START_TEST (three_variables)
 {
-	forward_and_reverse("a+b-c", RC_SUCCESS, "abc-+", RC_SUCCESS, "a+(b-c)");
-	forward_and_reverse("a-b+c", RC_SUCCESS, "ab-c+", RC_SUCCESS, "(a-b)+c");
-	forward_and_reverse("a-b^c", RC_SUCCESS, "abc^-", RC_SUCCESS, "a-(b^c)");
-	forward_and_reverse("a/b*c", RC_SUCCESS, "ab/c*", RC_SUCCESS, "(a/b)*c");
-	forward_and_reverse("a^b+c", RC_SUCCESS, "ab^c+", RC_SUCCESS, "(a^b)+c");
-	forward_and_reverse("a+b+c", RC_SUCCESS, "ab+c+", RC_SUCCESS, "(a+b)+c");
+	forward_and_reverse("a+b-c", RC_SUCCESS, "abc-+", RC_SUCCESS, "a+(b-c)", __LINE__);
+	forward_and_reverse("a-b+c", RC_SUCCESS, "ab-c+", RC_SUCCESS, "(a-b)+c", __LINE__);
+	forward_and_reverse("a-b^c", RC_SUCCESS, "abc^-", RC_SUCCESS, "a-(b^c)", __LINE__);
+	forward_and_reverse("a/b*c", RC_SUCCESS, "ab/c*", RC_SUCCESS, "(a/b)*c", __LINE__);
+	forward_and_reverse("a^b+c", RC_SUCCESS, "ab^c+", RC_SUCCESS, "(a^b)+c", __LINE__);
+	forward_and_reverse("a+b+c", RC_SUCCESS, "ab+c+", RC_SUCCESS, "(a+b)+c", __LINE__);
 }
 END_TEST
 
 START_TEST (more_variables)
 {
-	forward_and_reverse("a+b-c*d", RC_SUCCESS, "abcd*-+", RC_SUCCESS, "a+(b-(c*d))");
-	forward_and_reverse("d/a-b/c", RC_SUCCESS, "da/bc/-", RC_SUCCESS, "(d/a)-(b/c)");
-	forward_and_reverse("a-b^c^d/e", RC_SUCCESS, "abc^d^e/-", RC_SUCCESS, "a-(((b^c)^d)/e)");
-	forward_and_reverse("l/m^n*o-p", RC_SUCCESS,  "lmn^/o*p-", RC_SUCCESS, "((l/(m^n))*o)-p");
-	forward_and_reverse("a+b-c*d/e^f+g-h*i/j^k", RC_SUCCESS, "abcdef^/*-+ghijk^/*-+", RC_SUCCESS, "(a+(b-(c*(d/(e^f)))))+(g-(h*(i/(j^k))))");
-	forward_and_reverse("a^b/c*d-e+f^g/h*i-j+k", RC_SUCCESS, "ab^c/d*e-fg^h/i*j-+k+", RC_SUCCESS, "(((((a^b)/c)*d)-e)+((((f^g)/h)*i)-j))+k");
+	forward_and_reverse("a+b-c*d", RC_SUCCESS, "abcd*-+", RC_SUCCESS, "a+(b-(c*d))", __LINE__);
+	forward_and_reverse("d/a-b/c", RC_SUCCESS, "da/bc/-", RC_SUCCESS, "(d/a)-(b/c)", __LINE__);
+	forward_and_reverse("a-b^c^d/e", RC_SUCCESS, "abc^d^e/-", RC_SUCCESS, "a-(((b^c)^d)/e)", __LINE__);
+	forward_and_reverse("l/m^n*o-p", RC_SUCCESS,  "lmn^/o*p-", RC_SUCCESS, "((l/(m^n))*o)-p", __LINE__);
+	forward_and_reverse("a+b-c*d/e^f+g-h*i/j^k", RC_SUCCESS, "abcdef^/*-+ghijk^/*-+", RC_SUCCESS, "(a+(b-(c*(d/(e^f)))))+(g-(h*(i/(j^k))))", __LINE__);
+	forward_and_reverse("a^b/c*d-e+f^g/h*i-j+k", RC_SUCCESS, "ab^c/d*e-fg^h/i*j-+k+", RC_SUCCESS, "(((((a^b)/c)*d)-e)+((((f^g)/h)*i)-j))+k", __LINE__);
 }
 END_TEST
 
 START_TEST (basic_paren)
 {
-	forward_and_reverse("(a)", RC_SUCCESS, "a", RC_SUCCESS, "a");
-	forward_and_reverse("(a+b)-c", RC_SUCCESS, "ab+c-", RC_SUCCESS, "(a+b)-c");
+	forward_and_reverse("(a)", RC_SUCCESS, "a", RC_SUCCESS, "a", __LINE__);
+	forward_and_reverse("(a+b)-c", RC_SUCCESS, "ab+c-", RC_SUCCESS, "(a+b)-c", __LINE__);
 }
 END_TEST
 
 START_TEST (advanced_paren)
 {
-	forward_and_reverse("((l/(m^n))*o)-p", RC_SUCCESS, "lmn^/o*p-", RC_SUCCESS, "((l/(m^n))*o)-p");
-	forward_and_reverse("((v/w)^x)*(y-z)", RC_SUCCESS, "vw/x^yz-*", RC_SUCCESS, "((v/w)^x)*(y-z)");
-	forward_and_reverse("(a+g)*(((b-a)+c)^(c+(e*(d^f))))", RC_SUCCESS, "ag+ba-c+cedf^*+^*", RC_SUCCESS, "(a+g)*(((b-a)+c)^(c+(e*(d^f))))");
+	forward_and_reverse("((l/(m^n))*o)-p", RC_SUCCESS, "lmn^/o*p-", RC_SUCCESS, "((l/(m^n))*o)-p", __LINE__);
+	forward_and_reverse("((v/w)^x)*(y-z)", RC_SUCCESS, "vw/x^yz-*", RC_SUCCESS, "((v/w)^x)*(y-z)", __LINE__);
+	forward_and_reverse("(a+g)*(((b-a)+c)^(c+(e*(d^f))))", RC_SUCCESS, "ag+ba-c+cedf^*+^*", RC_SUCCESS, "(a+g)*(((b-a)+c)^(c+(e*(d^f))))", __LINE__);
 }
 END_TEST
 
@@ -143,21 +144,49 @@ START_TEST (error_checking)
 	strcpy(infix, "a+((b");
 	infix_length = strlen(infix) + 1;
 	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_FAILURE == return_code,
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	rpn_length = sizeof(rpn);
 	strcpy(infix, "a+))b");
 	infix_length = strlen(infix) + 1;
 	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_FAILURE == return_code,
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	rpn_length = sizeof(rpn);
 	strcpy(infix, "a+)b");
 	infix_length = strlen(infix) + 1;
 	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_FAILURE == return_code,
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	rpn_length = sizeof(rpn);
+	strcpy(infix, "a+()b");
+	infix_length = strlen(infix) + 1;
+	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	rpn_length = sizeof(rpn);
+	strcpy(infix, "a(+)b");
+	infix_length = strlen(infix) + 1;
+	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	rpn_length = sizeof(rpn);
+	strcpy(infix, "(((((a+b)))))");
+	infix_length = strlen(infix) + 1;
+	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_SUCCESS == return_code,
+		"Was expecting failure, but found %d", return_code);
+	
+	rpn_length = sizeof(rpn);
+	strcpy(infix, "((((+(a)))))");
+	infix_length = strlen(infix) + 1;
+	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	rpn_length = sizeof(rpn);
