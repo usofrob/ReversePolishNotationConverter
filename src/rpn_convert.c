@@ -73,7 +73,7 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 		if( (calculation_string[index] >= 'a') &&
 		    (calculation_string[index] <= 'z') )
 		{
-			has_variable = 1;
+			has_variable++;
 			(*determined_length)++;
 			continue;
 		}
@@ -100,7 +100,7 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 					(*determined_length)++;
 				}
 			}
-			has_operator = 1;
+			has_operator++;
 			continue;
 		}
 		else if ((infix_to_rpn) && 
@@ -123,8 +123,7 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 	 * AND there is an operation for any calculation longer than 1 variable
 	 */
 	if( (index + 1 == calculation_string_length) &&
-		(1 == has_variable) &&
-		((1 == has_operator) || (1 == (*determined_length))) )
+		(has_operator == has_variable - 1) )
 	{
 		return_value = RC_SUCCESS;
 	}

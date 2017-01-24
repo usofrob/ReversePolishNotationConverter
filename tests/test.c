@@ -133,6 +133,13 @@ START_TEST (error_checking)
 		"Was expecting failure, but found %d", return_code);
 
 	rpn_length = sizeof(rpn);
+	strcpy(infix, "a+");
+	infix_length = strlen(infix) + 1;
+	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	rpn_length = sizeof(rpn);
 	strcpy(infix, "a+b+c+d+e");
 	infix_length = strlen(infix) + 1;
 	rpn_length = 6;
@@ -189,14 +196,14 @@ START_TEST (error_checking_infix)
 	strcpy(rpn, "a+");
 	rpn_length = strlen(rpn) + 1;
 	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_FAILURE == return_code,
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	infix_length = sizeof(rpn);
 	strcpy(rpn, "abcd++");
 	rpn_length = strlen(rpn) + 1;
 	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_FAILURE == return_code,
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
 		"Was expecting failure, but found %d", return_code);
 
 	infix_length = sizeof(rpn);
