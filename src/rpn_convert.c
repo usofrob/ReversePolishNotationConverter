@@ -334,12 +334,6 @@ rpn_return_code_t determine_infix(char* rpn,
 	
 	//~ printf("index_stop=%d\n", *index_stop);
 	
-	// Check important parameters
-	if(infix_stop < 0)
-	{
-		return RC_FAILURE;
-	}
-	
 	// If there is only one variable left, then it must be the end
 	if(infix_start == infix_stop)
 	{
