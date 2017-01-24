@@ -20,6 +20,7 @@ void forward_and_reverse(char* infix_input,
 	uint32_t rpn_length = 0, infix_length = 0;
 	rpn_return_code_t return_code = RC_FAILURE;
 	
+	//~ printf("parameters %s %d %s %d %s\n", infix_input, expected_infix_return_code, rpn_output, expected_rpn_return_code, infix_output);
 	/* unit test code */
 	rpn_length = sizeof(rpn);
 	strcpy(infix, infix_input);
@@ -50,50 +51,11 @@ END_TEST
 
 START_TEST (basic_plus_minus_multiply_divide_exponent)
 {
-	char infix[MAX_STRING_LENGTH] = "";
-	char rpn[MAX_STRING_LENGTH] = "";
-	uint32_t rpn_length = 0, infix_length = 0;
-	rpn_return_code_t return_code = RC_FAILURE;
-
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a+b");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab+");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a-b");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab-");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a*b");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab*");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a/b");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab/");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a^b");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab^");
+	forward_and_reverse("a+b", RC_SUCCESS, "ab+", RC_SUCCESS, "a+b");
+	forward_and_reverse("a-b", RC_SUCCESS, "ab-", RC_SUCCESS, "a-b");
+	forward_and_reverse("a*b", RC_SUCCESS, "ab*", RC_SUCCESS, "a*b");
+	forward_and_reverse("a/b", RC_SUCCESS, "ab/", RC_SUCCESS, "a/b");
+	forward_and_reverse("a^b", RC_SUCCESS, "ab^", RC_SUCCESS, "a^b");
 }
 END_TEST
 
