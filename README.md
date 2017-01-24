@@ -10,6 +10,17 @@ If the parameter search only has a single character, then it is the parameter re
 This process builds the RPN notation string from the last character first, to the first character.
 There are length, parameters and range checks to make sure things are safe.
 
+To do the conversion from RPN to Infix, assume that you'll always include () whenever there is more than one operator.
+That would make length of the Infix string = (<num_operators>-1)*2 + rpn_length.
+Parse from right to left
+	Read operator
+	index--
+	Determine parameter 2
+	index--
+	Determine parameter 1
+	index--
+	Add parens
+
 ## Environment requirements
 *	Ubuntu 14.04 or 16.04
 *	Run install script (./scripts/installEnvironment.sh)

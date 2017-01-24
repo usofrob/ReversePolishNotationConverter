@@ -47,9 +47,10 @@ int calc_precedence(char operator)
  * return RC_SUCCESS if characters are within range
  *        RC_FAILURE if any character is invalid
  */
-rpn_return_code_t check_characters(char* calculation_string, 
+rpn_return_code_t check_characters(int infix_to_rpn,
+	char* calculation_string, 
 	uint32_t calculation_string_length,
-	uint32_t* determined_rpn_length)
+	uint32_t* determined_length)
 {
 	rpn_return_code_t return_value = RC_FAILURE;
 	int has_operator = 0;
@@ -63,7 +64,7 @@ rpn_return_code_t check_characters(char* calculation_string,
 		    (calculation_string[index] <= 'z') )
 		{
 			has_variable = 1;
-			(*determined_rpn_length)++;
+			(*determined_length)++;
 			continue;
 		}
 		else if ( (calculation_string[index] == '^') ||
@@ -72,12 +73,29 @@ rpn_return_code_t check_characters(char* calculation_string,
 				  (calculation_string[index] == '-') ||
 				  (calculation_string[index] == '+') )
 		{
+			// Add 2 for every operator to account for () for every 
+			// operator more than 1
+			if (infix_to_rpn)
+			{
+				(*determined_length)++;
+			}
+			else
+			{
+				if (has_operator)
+				{
+					(*determined_length) += 3;
+				}
+				else
+				{
+					(*determined_length)++;
+				}
+			}
 			has_operator = 1;
-			(*determined_rpn_length)++;
 			continue;
 		}
-		else if ( (calculation_string[index] == '(') ||
-				  (calculation_string[index] == ')') )
+		else if ((infix_to_rpn) && 
+				 ((calculation_string[index] == '(') ||
+				  (calculation_string[index] == ')')))
 		{
 			continue;
 		}
@@ -87,15 +105,16 @@ rpn_return_code_t check_characters(char* calculation_string,
 		}
 	}
 	
-	/* If the break occured when the index == length, then we went 
-	 * through the entire string
-	 * AND
-	 * There is a variable, and there is an operation for any 
-	 * calculation longer than 1 variable
+	// TODO: Check the correct ratio of operators to variables
+	
+	/* IF the break occured when the index == length, 
+	 * THEN we went through the entire string
+	 * AND There is a variable
+	 * AND there is an operation for any calculation longer than 1 variable
 	 */
 	if( (index + 1 == calculation_string_length) &&
 		(1 == has_variable) &&
-		((1 == has_operator) || (1 == (*determined_rpn_length))) )
+		((1 == has_operator) || (1 == (*determined_length))) )
 	{
 		return_value = RC_SUCCESS;
 	}
@@ -226,11 +245,11 @@ rpn_return_code_t matching_paren(char* infix,
  *   rpn_stop : The last undefined character of the rpn string
  * Returns type rpn_return_code_t
  */
-rpn_return_code_t determine_value(char* infix,
-								  int32_t index_start,
-								  int32_t index_stop,
-								  char* rpn,
-								  int32_t* rpn_stop)
+rpn_return_code_t determine_rpn(char* infix,
+								int32_t index_start,
+								int32_t index_stop,
+								char* rpn,
+								int32_t* rpn_stop)
 {
 	rpn_return_code_t return_value = RC_FAILURE;
 	uint32_t current_operator_index = 0;
@@ -264,7 +283,7 @@ rpn_return_code_t determine_value(char* infix,
 			matching_index == index_stop)
 	{
 		// Remove them from the search range
-		determine_value(infix, index_start + 1, index_stop - 1, rpn, rpn_stop);
+		determine_rpn(infix, index_start + 1, index_stop - 1, rpn, rpn_stop);
 		return_value = RC_SUCCESS;
 	}
 	else
@@ -279,10 +298,73 @@ rpn_return_code_t determine_value(char* infix,
 		(*rpn_stop)--;
 		
 		// determine right side
-		determine_value(infix, current_operator_index + 1, index_stop, rpn, rpn_stop);
+		determine_rpn(infix, current_operator_index + 1, index_stop, rpn, rpn_stop);
 		
 		// determine left side
-		determine_value(infix, index_start, current_operator_index - 1, rpn, rpn_stop);
+		determine_rpn(infix, index_start, current_operator_index - 1, rpn, rpn_stop);
+		
+		return_value = RC_SUCCESS;
+	}
+	
+	return return_value;
+}
+
+/**
+ * Determines a parmeter to an operation, automatically fills in rpn
+ * Pass the complete string
+ * Include every character that hasn't been used yet
+ * 
+ * Input:
+ *   infix : The pre-allocated character string in infix notation
+ *   index_start : The first character of the infix string to search
+ *   index_stop : The last character of the infix string to search (inclusive)
+ * Input/Output:
+ *   rpn : The pre-allocated character string for the RPN return value
+ *   rpn_stop : The last undefined character of the rpn string
+ * Returns type rpn_return_code_t
+ */
+rpn_return_code_t determine_infix(char* rpn,
+								  int32_t* index_stop,
+								  char* infix,
+								  int32_t infix_start,
+								  int32_t infix_stop)
+{
+	rpn_return_code_t return_value = RC_FAILURE;
+	char next_operator = 0;
+	
+	//~ printf("index_stop=%d\n", *index_stop);
+	
+	// Check important parameters
+	if(infix_stop < 0)
+	{
+		return RC_FAILURE;
+	}
+	
+	// If there is only one variable left, then it must be the end
+	if(infix_start == infix_stop)
+	{
+		// TODO: check char is a variable
+		infix[infix_start] = rpn[*index_stop];
+		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
+		(*index_stop)--;
+		return_value = RC_SUCCESS;
+	}
+	else
+	{
+		// TODO: look at return codes
+		
+		// There must still be an operator, determine next set
+		next_operator = rpn[*index_stop];
+		//~ printf("infix[%d]=%c\n", *index_stop, rpn[*index_stop]);
+		(*index_stop)--;
+		
+		// determine right side
+		determine_infix(rpn, index_stop, infix, infix_start + 2, infix_stop);
+		
+		// determine left side
+		determine_infix(rpn, index_stop, infix, infix_start, infix_stop - 2);
+		
+		infix[infix_stop - 1] = next_operator;
 		
 		return_value = RC_SUCCESS;
 	}
@@ -301,7 +383,7 @@ rpn_return_code_t convert(int infix_to_rpn,
 	char *output_str = NULL;
 	uint32_t *input_length = 0;
 	uint32_t *output_length = 0;
-	uint32_t last_used_char = 0;
+	int32_t last_used_char = 0;
 	int32_t output_stop = 0;
 	uint32_t determined_length = 0;
 	
@@ -320,8 +402,9 @@ rpn_return_code_t convert(int infix_to_rpn,
 		output_length = infix_length;
 	}
 	last_used_char = (*input_length) - 1;
+	//~ printf("convert %d %s %d %s %d %d\n", infix_to_rpn, input_str, *input_length, output_str, *output_length, last_used_char);
 
-	if(check_characters(input_str, *input_length, &determined_length) != RC_SUCCESS)
+	if(check_characters(infix_to_rpn, input_str, *input_length, &determined_length) != RC_SUCCESS)
 	{
 		return RC_INVALID_CHAR;
 	}
@@ -335,5 +418,15 @@ rpn_return_code_t convert(int infix_to_rpn,
 	output_str[determined_length] = 0; // Ensure null terminated
 	(*output_length) = determined_length + 1;
 	
-	return determine_value(input_str, 0, last_used_char-1, output_str, &output_stop);
+	//~ printf("determined_length %d\n", determined_length);
+	
+	if (infix_to_rpn)
+	{
+		return determine_rpn(input_str, 0, last_used_char-1, output_str, &output_stop);
+	}
+	else
+	{
+		last_used_char--;
+		return determine_infix(input_str, &last_used_char, output_str, 0, output_stop);
+	}
 }
