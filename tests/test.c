@@ -143,6 +143,52 @@ START_TEST (error_checking)
 }
 END_TEST
 
+START_TEST (error_checking_infix)
+{
+	char infix[MAX_STRING_LENGTH] = "";
+	char rpn[MAX_STRING_LENGTH] = "";
+	uint32_t rpn_length = 0, infix_length = 0;
+	rpn_return_code_t return_code = RC_SUCCESS;
+
+	infix_length = sizeof(rpn);
+	strcpy(rpn, "A");
+	rpn_length = strlen(rpn) + 1;
+	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	infix_length = sizeof(rpn);
+	strcpy(rpn, "&");
+	rpn_length = strlen(rpn) + 1;
+	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	infix_length = sizeof(rpn);
+	strcpy(rpn, "---");
+	rpn_length = strlen(rpn) + 1;
+	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	infix_length = sizeof(rpn);
+	strcpy(rpn, " a");
+	rpn_length = strlen(rpn) + 1;
+	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	infix_length = sizeof(rpn);
+	strcpy(rpn, "abcde++++");
+	rpn_length = strlen(rpn) + 1;
+	infix_length = 6;
+	return_code = convert(0, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_INPUT_LENGTH == return_code,
+		"Was expecting failure, but found %d", return_code);
+		
+}
+END_TEST
+
 Suite * test_suite(void)
 {
 	Suite *s;
@@ -159,6 +205,7 @@ Suite * test_suite(void)
 	tcase_add_test(tc_core, three_variables);
 	tcase_add_test(tc_core, more_variables);
 	tcase_add_test(tc_core, error_checking);
+	tcase_add_test(tc_core, error_checking_infix);
 	suite_add_tcase(s, tc_core);
 	
 	return s;
