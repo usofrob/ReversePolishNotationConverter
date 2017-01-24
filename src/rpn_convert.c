@@ -154,7 +154,6 @@ rpn_return_code_t search_for_min_operator(char* infix,
 	int precedence = 0;
 	int max_precedence = 0;
 	int paren_count = 0; // Keep track of the number of parens we are deep
-	//~ printf("start%d stop%d\n", index_start, index_stop);
 	
 	// search backwards so that ties go to the first in the string
 	for(int32_t index = index_stop; index >= index_start; --index)
@@ -174,7 +173,6 @@ rpn_return_code_t search_for_min_operator(char* infix,
 			continue;
 		}
 		
-		//~ printf("[%d]=%c\n", index, infix[index]);
 		// If the precedence is greater than the previous max
 		precedence = calc_precedence(infix[index]);
 		if(precedence > max_precedence)
@@ -186,7 +184,6 @@ rpn_return_code_t search_for_min_operator(char* infix,
 			(*index_min_operator) = index;
 		}
 	}
-	//~ printf("found [%d]=%c\n", *index_min_operator, infix[*index_min_operator]);
 	
 	return return_value;
 }
@@ -264,8 +261,6 @@ rpn_return_code_t determine_rpn(char* infix,
 	uint32_t current_operator_index = 0;
 	int32_t matching_index = 0;
 	
-	//~ printf("rpn_stop=%d\n", *rpn_stop);
-	
 	// Check important parameters
 	if(rpn_stop < 0)
 	{
@@ -282,7 +277,6 @@ rpn_return_code_t determine_rpn(char* infix,
 	{
 		// TODO: check char is a variable
 		rpn[(*rpn_stop)] = infix[index_stop];
-		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
 		(*rpn_stop)--;
 		return_value = RC_SUCCESS;
 	}
@@ -303,7 +297,6 @@ rpn_return_code_t determine_rpn(char* infix,
 		search_for_min_operator(infix, index_start, index_stop, &current_operator_index);
 		
 		rpn[(*rpn_stop)] = infix[current_operator_index];
-		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
 		(*rpn_stop)--;
 		
 		// determine right side
@@ -341,22 +334,11 @@ rpn_return_code_t determine_infix(char* rpn,
 	rpn_return_code_t return_value = RC_FAILURE;
 	char next_operator = 0;
 	
-	//~ printf("index_stop=%d\n", *index_stop);
-	//~ printf("infix_stop=%d\n", *infix_stop);
-	//~ printf("param=%d\n", param);
-	// Check important parameters, only needed during development
-	//~ if(*index_stop < 0)
-	//~ {
-		//~ return RC_FAILURE;
-	//~ }
-	
 	// check char is a variable, then return
 	if( (rpn[*index_stop] >= 'a') &&
 		(rpn[*index_stop] <= 'z') )
 	{
-		//~ printf("1rpn[%d]=%c\n", *index_stop, rpn[*index_stop]);
 		infix[*infix_stop] = rpn[*index_stop];
-		//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
 		(*index_stop)--;
 		(*infix_stop)--;
 		return_value = RC_SUCCESS;
@@ -367,14 +349,12 @@ rpn_return_code_t determine_infix(char* rpn,
 		
 		// There must still be an operator, determine next set
 		next_operator = rpn[*index_stop];
-		//~ printf("3rpn[%d]=%c\n", *index_stop, rpn[*index_stop]);
 		(*index_stop)--;
 		
 		// If not first pass, then set right paren
 		if (param == PARAM_SECOND)
 		{
 			infix[*infix_stop] = ')';
-			//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
 			(*infix_stop)--;
 		}
 		
@@ -384,7 +364,6 @@ rpn_return_code_t determine_infix(char* rpn,
 
 		// Store the operator in the next space
 		infix[*infix_stop] = next_operator;
-		//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
 		(*infix_stop)--;
 		
 		// determine left side
@@ -394,7 +373,6 @@ rpn_return_code_t determine_infix(char* rpn,
 		if (param == PARAM_SECOND)
 		{
 			infix[*infix_stop] = '(';
-			//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
 			(*infix_stop)--;
 		}
 		
@@ -449,8 +427,6 @@ rpn_return_code_t convert(int infix_to_rpn,
 	output_stop = determined_length - 1;
 	output_str[determined_length] = 0; // Ensure null terminated
 	(*output_length) = determined_length + 1;
-	
-	//~ printf("determined_length %d\n", determined_length);
 	
 	if (infix_to_rpn)
 	{
