@@ -11,8 +11,7 @@
 typedef enum param_side_t
 {
 	PARAM_FIRST,
-	PARAM_SECOND,
-	PARAM_LEFTOVERS
+	PARAM_SECOND
 } param_side_t;
 
 /**

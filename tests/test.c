@@ -72,58 +72,12 @@ END_TEST
 
 START_TEST (more_variables)
 {
-	char infix[MAX_STRING_LENGTH] = "";
-	char rpn[MAX_STRING_LENGTH] = "";
-	uint32_t rpn_length = 0, infix_length = 0;
-	rpn_return_code_t return_code = RC_FAILURE;
-
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a+b-c*d");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "abcd*-+");
-
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "d/a-b/c");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "da/bc/-");
-
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a-b^c^d/e");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "abc^d^e/-");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "l/m^n*o-p");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "lmn^/o*p-");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a+b-c*d/e^f+g-h*i/j^k");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "abcdef^/*-+ghijk^/*-+");
-	
-	rpn_length = sizeof(rpn);
-	strcpy(infix, "a^b/c*d-e+f^g/h*i-j+k");
-	infix_length = strlen(infix) + 1;
-	return_code = convert(1, infix, &infix_length, rpn, &rpn_length);
-	ck_assert_msg(RC_SUCCESS == return_code,
-		"Was expecting success, but found %d", return_code);
-	ck_assert_str_eq(rpn, "ab^c/d*e-fg^h/i*j-+k+");
+	forward_and_reverse("a+b-c*d", RC_SUCCESS, "abcd*-+", RC_SUCCESS, "a+(b-(c*d))");
+	forward_and_reverse("d/a-b/c", RC_SUCCESS, "da/bc/-", RC_SUCCESS, "(d/a)-(b/c)");
+	forward_and_reverse("a-b^c^d/e", RC_SUCCESS, "abc^d^e/-", RC_SUCCESS, "a-(((b^c)^d)/e)");
+	forward_and_reverse("l/m^n*o-p", RC_SUCCESS,  "lmn^/o*p-", RC_SUCCESS, "((l/(m^n))*o)-p");
+	forward_and_reverse("a+b-c*d/e^f+g-h*i/j^k", RC_SUCCESS, "abcdef^/*-+ghijk^/*-+", RC_SUCCESS, "(a+(b-(c*(d/(e^f)))))+(g-(h*(i/(j^k))))");
+	forward_and_reverse("a^b/c*d-e+f^g/h*i-j+k", RC_SUCCESS, "ab^c/d*e-fg^h/i*j-+k+", RC_SUCCESS, "(((((a^b)/c)*d)-e)+((((f^g)/h)*i)-j))+k");
 }
 END_TEST
 
