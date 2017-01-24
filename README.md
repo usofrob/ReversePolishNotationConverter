@@ -11,15 +11,18 @@ This process builds the RPN notation string from the last character first, to th
 There are length, parameters and range checks to make sure things are safe.
 
 To do the conversion from RPN to Infix, assume that you'll always include () whenever there is more than one operator.
-That would make length of the Infix string = (<num_operators>-1)*2 + rpn_length.
+That would make length of the Infix string = (num_operators - 1) * 2 + rpn_length.
 Parse from right to left
-	Read operator
-	index--
-	Determine parameter 2
-	index--
-	Determine parameter 1
-	index--
-	Add parens
+*	Read operator
+*	index--
+*	if (not first pass), then write ')'
+*	Determine parameter 2
+*	index--
+*	Determine parameter 1
+*	index--
+*	if (not first pass), then write '('
+The result has a lot more '()' than the original infix notation. A future improvement would be to remove the paren's when they are determined not to be needed.
+
 
 ## Environment requirements
 *	Ubuntu 14.04 or 16.04
