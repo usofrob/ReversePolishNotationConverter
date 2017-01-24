@@ -63,9 +63,9 @@ START_TEST (three_variables)
 {
 	forward_and_reverse("a+b-c", RC_SUCCESS, "abc-+", RC_SUCCESS, "a+(b-c)");
 	forward_and_reverse("a-b+c", RC_SUCCESS, "ab-c+", RC_SUCCESS, "(a-b)+c");
-	forward_and_reverse("a-b^c", RC_SUCCESS, "abc^-", RC_SUCCESS, "a-b^c");
+	forward_and_reverse("a-b^c", RC_SUCCESS, "abc^-", RC_SUCCESS, "a-(b^c)");
 	forward_and_reverse("a/b*c", RC_SUCCESS, "ab/c*", RC_SUCCESS, "(a/b)*c");
-	forward_and_reverse("a^b+c", RC_SUCCESS, "abc-+", RC_SUCCESS, "(a^b)+c");
+	forward_and_reverse("a^b+c", RC_SUCCESS, "ab^c+", RC_SUCCESS, "(a^b)+c");
 	forward_and_reverse("a+b+c", RC_SUCCESS, "ab+c+", RC_SUCCESS, "(a+b)+c");
 }
 END_TEST

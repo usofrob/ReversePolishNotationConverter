@@ -4,6 +4,17 @@
 #include <stdio.h>
 
 
+
+/**
+ * Generic return code meanings
+ */
+typedef enum param_side_t
+{
+	PARAM_FIRST,
+	PARAM_SECOND,
+	PARAM_LEFTOVERS
+} param_side_t;
+
 /**
  * Converts the operator to it's precedence
  * A lower number means it happens first (has precedence)
@@ -81,14 +92,14 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 			}
 			else
 			{
-				//~ if (has_operator)
-				//~ {
-					//~ (*determined_length) += 3;
-				//~ }
-				//~ else
-				//~ {
-				(*determined_length)++;
-				//~ }
+				if (has_operator)
+				{
+					(*determined_length) += 3;
+				}
+				else
+				{
+					(*determined_length)++;
+				}
 			}
 			has_operator = 1;
 			continue;
@@ -326,21 +337,30 @@ rpn_return_code_t determine_rpn(char* infix,
 rpn_return_code_t determine_infix(char* rpn,
 								  int32_t* index_stop,
 								  char* infix,
-								  int32_t infix_start,
-								  int32_t infix_stop)
+								  int32_t* infix_stop,
+								  param_side_t param)
 {
 	rpn_return_code_t return_value = RC_FAILURE;
 	char next_operator = 0;
 	
 	//~ printf("index_stop=%d\n", *index_stop);
+	//~ printf("infix_stop=%d\n", *infix_stop);
+	//~ printf("param=%d\n", param);
+	// Check important parameters, only needed during development
+	//~ if(*index_stop < 0)
+	//~ {
+		//~ return RC_FAILURE;
+	//~ }
 	
-	// If there is only one variable left, then it must be the end
-	if(infix_start == infix_stop)
+	// check char is a variable, then return
+	if( (rpn[*index_stop] >= 'a') &&
+		(rpn[*index_stop] <= 'z') )
 	{
-		// TODO: check char is a variable
-		infix[infix_start] = rpn[*index_stop];
-		//~ printf("rpn[%d]=%c\n", (*rpn_stop), rpn[(*rpn_stop)]);
+		//~ printf("1rpn[%d]=%c\n", *index_stop, rpn[*index_stop]);
+		infix[*infix_stop] = rpn[*index_stop];
+		//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
 		(*index_stop)--;
+		(*infix_stop)--;
 		return_value = RC_SUCCESS;
 	}
 	else
@@ -349,16 +369,36 @@ rpn_return_code_t determine_infix(char* rpn,
 		
 		// There must still be an operator, determine next set
 		next_operator = rpn[*index_stop];
-		//~ printf("infix[%d]=%c\n", *index_stop, rpn[*index_stop]);
+		//~ printf("3rpn[%d]=%c\n", *index_stop, rpn[*index_stop]);
 		(*index_stop)--;
 		
+		// If not first pass, then set right paren
+		if (param == PARAM_SECOND)
+		{
+			infix[*infix_stop] = ')';
+			//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
+			(*infix_stop)--;
+		}
+		
 		// determine right side
-		determine_infix(rpn, index_stop, infix, infix_start + 2, infix_stop);
+		// pass the next index to use, fills in parens as needed, returns new range
+		determine_infix(rpn, index_stop, infix, infix_stop, PARAM_SECOND);
+
+		// Store the operator in the next space
+		infix[*infix_stop] = next_operator;
+		//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
+		(*infix_stop)--;
 		
 		// determine left side
-		determine_infix(rpn, index_stop, infix, infix_start, infix_stop - 2);
+		determine_infix(rpn, index_stop, infix, infix_stop, PARAM_SECOND);
 		
-		infix[infix_stop - 1] = next_operator;
+		// If not first pass, then set left paren
+		if (param == PARAM_SECOND)
+		{
+			infix[*infix_stop] = '(';
+			//~ printf("1infix[%d]=%c\n", *infix_stop, infix[*infix_stop]);
+			(*infix_stop)--;
+		}
 		
 		return_value = RC_SUCCESS;
 	}
@@ -421,6 +461,6 @@ rpn_return_code_t convert(int infix_to_rpn,
 	else
 	{
 		last_used_char--;
-		return determine_infix(input_str, &last_used_char, output_str, 0, output_stop);
+		return determine_infix(input_str, &last_used_char, output_str, &output_stop, PARAM_FIRST);
 	}
 }
