@@ -267,7 +267,14 @@ START_TEST (error_checking_infix)
 		"Was expecting failure, but found %d", return_code);
 
 	infix_length = sizeof(rpn);
-	strcpy(rpn, "a+bcd++");
+	strcpy(rpn, "a+bc++d");
+	rpn_length = strlen(rpn) + 1;
+	return_code = convert(CONVERT_RPN_TO_INFIX, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_FAILURE == return_code,
+		"Was expecting failure, but found %d", return_code);
+	
+	infix_length = sizeof(rpn);
+	strcpy(rpn, "+abcd++");
 	rpn_length = strlen(rpn) + 1;
 	return_code = convert(CONVERT_RPN_TO_INFIX, infix, &infix_length, rpn, &rpn_length);
 	ck_assert_msg(RC_FAILURE == return_code,

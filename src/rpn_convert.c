@@ -371,6 +371,7 @@ rpn_return_code_t determine_infix(char* rpn,
 	rpn_return_code_t return_value = RC_FAILURE;
 	char next_operator = 0;
 	
+	//~ printf("determine_infix %s %d %s %d %d\n", rpn, *index_stop, infix, *infix_stop, param);
 	// check char is a variable, then return
 	if( (rpn[*index_stop] >= 'a') &&
 		(rpn[*index_stop] <= 'z') )
@@ -386,6 +387,7 @@ rpn_return_code_t determine_infix(char* rpn,
 		
 		// There must still be an operator, determine next set
 		next_operator = rpn[*index_stop];
+		//~ printf("operator: [%d]=%c\n", *index_stop, next_operator);
 		(*index_stop)--;
 		
 		// If not first pass, then set right paren
@@ -433,6 +435,7 @@ rpn_return_code_t convert(conversion_direction_t conversion_direction,
 	int32_t last_used_char = 0;
 	int32_t output_stop = 0;
 	uint32_t determined_length = 0;
+	rpn_return_code_t return_value = RC_FAILURE;
 	
 	if (conversion_direction == CONVERT_INFIX_TO_RPN)
 	{
@@ -467,11 +470,19 @@ rpn_return_code_t convert(conversion_direction_t conversion_direction,
 	
 	if (conversion_direction == CONVERT_INFIX_TO_RPN)
 	{
-		return determine_rpn(input_str, 0, last_used_char-1, output_str, &output_stop);
+		return_value = determine_rpn(input_str, 0, last_used_char-1, output_str, &output_stop);
 	}
 	else
 	{
 		last_used_char--;
-		return determine_infix(input_str, &last_used_char, output_str, &output_stop, PARAM_FIRST);
+		return_value = determine_infix(input_str, &last_used_char, output_str, &output_stop, PARAM_FIRST);
 	}
+
+	// Final parameter check
+	if(strlen(output_str) != determined_length)
+	{
+		return_value = RC_FAILURE;
+	}
+	
+	return return_value;
 }
