@@ -186,6 +186,13 @@ START_TEST (error_checking)
 		"Was expecting failure, but found %d", return_code);
 
 	rpn_length = sizeof(rpn);
+	strcpy(infix, "a+bc-+d");
+	infix_length = strlen(infix) + 1;
+	return_code = convert(CONVERT_INFIX_TO_RPN, infix, &infix_length, rpn, &rpn_length);
+	ck_assert_msg(RC_INVALID_CHAR == return_code,
+		"Was expecting failure, but found %d", return_code);
+
+	rpn_length = sizeof(rpn);
 	strcpy(infix, "(((((a+b)))))");
 	infix_length = strlen(infix) + 1;
 	return_code = convert(CONVERT_INFIX_TO_RPN, infix, &infix_length, rpn, &rpn_length);
