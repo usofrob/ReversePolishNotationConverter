@@ -71,7 +71,7 @@ int calc_precedence(char operator)
  * return RC_SUCCESS if characters are within range
  *        RC_INVALID_CHAR if any character is invalid
  */
-rpn_return_code_t check_characters(int infix_to_rpn,
+rpn_return_code_t check_characters(conversion_direction_t conversion_direction,
 	char* calculation_string, 
 	uint32_t calculation_string_length,
 	uint32_t* determined_length)
@@ -90,7 +90,7 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 		// AND check to see if the parens are in the correct location
 		if( (calculation_string[index] >= 'a') &&
 		    (calculation_string[index] <= 'z') &&
-		    ((!infix_to_rpn) ||
+		    ((conversion_direction == CONVERT_RPN_TO_INFIX) ||
 		     ((last_char_type != CALCULATION_TYPE_VARIABLE) &&
 		      (last_char_type != CALCULATION_TYPE_RIGHT_PAREN))) )
 		{
@@ -106,13 +106,13 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 				  (calculation_string[index] == '*') ||
 				  (calculation_string[index] == '-') ||
 				  (calculation_string[index] == '+')) &&
-				   ((!infix_to_rpn) ||
+				   ((conversion_direction == CONVERT_RPN_TO_INFIX) ||
 				    ((last_char_type != CALCULATION_TYPE_OPERATOR) &&
 				     (last_char_type != CALCULATION_TYPE_LEFT_PAREN))))
 		{
 			// Add 2 for every operator to account for () for every 
 			// operator more than 1
-			if (infix_to_rpn)
+			if (conversion_direction == CONVERT_INFIX_TO_RPN)
 			{
 				(*determined_length)++;
 			}
@@ -131,7 +131,7 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 			last_char_type = CALCULATION_TYPE_OPERATOR;
 			continue;
 		}
-		else if ((infix_to_rpn) && 
+		else if ((conversion_direction == CONVERT_INFIX_TO_RPN) && 
 				 (calculation_string[index] == '(') &&
 				 (last_char_type != CALCULATION_TYPE_VARIABLE) &&
 				 (last_char_type != CALCULATION_TYPE_RIGHT_PAREN))
@@ -142,7 +142,7 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 			last_char_type = CALCULATION_TYPE_LEFT_PAREN;
 			continue;
 		}
-		else if ((infix_to_rpn) && 
+		else if ((conversion_direction == CONVERT_INFIX_TO_RPN) && 
 				 (calculation_string[index] == ')') &&
 				 (last_char_type != CALCULATION_TYPE_OPERATOR) &&
 				 (last_char_type != CALCULATION_TYPE_LEFT_PAREN))
@@ -420,7 +420,7 @@ rpn_return_code_t determine_infix(char* rpn,
 }
 
 /* See description in header file */
-rpn_return_code_t convert(int infix_to_rpn,
+rpn_return_code_t convert(conversion_direction_t conversion_direction,
             char* infix, 
             uint32_t* infix_length,
             char* rpn,
@@ -434,7 +434,7 @@ rpn_return_code_t convert(int infix_to_rpn,
 	int32_t output_stop = 0;
 	uint32_t determined_length = 0;
 	
-	if (infix_to_rpn)
+	if (conversion_direction == CONVERT_INFIX_TO_RPN)
 	{
 		input_str = infix;
 		input_length = infix_length;
@@ -449,9 +449,9 @@ rpn_return_code_t convert(int infix_to_rpn,
 		output_length = infix_length;
 	}
 	last_used_char = (*input_length) - 1;
-	//~ printf("convert %d %s %d %s %d %d\n", infix_to_rpn, input_str, *input_length, output_str, *output_length, last_used_char);
+	//~ printf("convert %d %s %d %s %d %d\n", conversion_direction, input_str, *input_length, output_str, *output_length, last_used_char);
 
-	if(check_characters(infix_to_rpn, input_str, *input_length, &determined_length) != RC_SUCCESS)
+	if(check_characters(conversion_direction, input_str, *input_length, &determined_length) != RC_SUCCESS)
 	{
 		return RC_INVALID_CHAR;
 	}
@@ -465,7 +465,7 @@ rpn_return_code_t convert(int infix_to_rpn,
 	output_str[determined_length] = 0; // Ensure null terminated
 	(*output_length) = determined_length + 1;
 	
-	if (infix_to_rpn)
+	if (conversion_direction == CONVERT_INFIX_TO_RPN)
 	{
 		return determine_rpn(input_str, 0, last_used_char-1, output_str, &output_stop);
 	}

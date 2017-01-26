@@ -16,12 +16,23 @@ typedef enum rpn_return_code_t
 } rpn_return_code_t;
 
 /**
+ * Conversion direction
+ * 
+ * Specify the direction to convert string formats
+ */
+typedef enum conversion_direction_t
+{
+	CONVERT_RPN_TO_INFIX,
+	CONVERT_INFIX_TO_RPN
+} conversion_direction_t;
+
+/**
  * Converts infix to RPN (Reverse Polish Notation)
  * 
  * Input:
- *   infix_to_rpn : Boolean value, 
- *                  true (1) if going from infix to RPN
- *                  false (0) if going from RPN to infix
+ *   conversion_direction : Select direction of conversion
+ *                  CONVERT_INFIX_TO_RPN: if going from infix to RPN
+ *                  CONVERT_RPN_TO_INFIX: if going from RPN to infix
  * 
  * Input/Output: depending on infix_to_rpn
  *   infix : The pre-allocated character string in infix notation
@@ -42,7 +53,7 @@ typedef enum rpn_return_code_t
  * 
  * returns type rpn_return_code_t
  */
-rpn_return_code_t convert(int infix_to_rpn,
+rpn_return_code_t convert(conversion_direction_t conversion_direction,
             char* infix, 
             uint32_t* infix_length,
             char* rpn,
