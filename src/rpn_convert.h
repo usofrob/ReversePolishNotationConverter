@@ -16,7 +16,7 @@ typedef enum rpn_return_code_t
 } rpn_return_code_t;
 
 /**
- * Converts infix to RPN
+ * Converts infix to RPN (Reverse Polish Notation)
  * 
  * Input:
  *   infix_to_rpn : Boolean value, 

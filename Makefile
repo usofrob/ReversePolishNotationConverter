@@ -10,7 +10,6 @@ TESTS=tests/test.c
 TEST_OBJECTS=$(TESTS:.c=.o)
 TEST_EXECUTABLE=bin/test_rpn_convert
 
-# COVERAGEFLAGS:=-fprofile-arcs -ftest-coverage
 COVERAGEFLAGS:=--coverage
 
 all: $(SOURCES) $(LIBRARY)

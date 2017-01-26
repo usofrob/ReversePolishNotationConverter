@@ -23,7 +23,7 @@ typedef enum calculation_char_type_t
 	CALCULATION_TYPE_VARIABLE,
 	CALCULATION_TYPE_LEFT_PAREN,
 	CALCULATION_TYPE_RIGHT_PAREN,
-	CALCULATION_TYPE_UNKNOWN
+	CALCULATION_TYPE_UNKNOWN // initial value
 } calculation_char_type_t;
 
 /**
@@ -60,6 +60,8 @@ int calc_precedence(char operator)
 
 /**
  * Check for valid characters in the calculation string
+ * Also check to see that the '(' always has a '(' or operator to the 
+ * left and ')' always has a ')' or variable to the left.
  * 
  * Input:
  *   calculation_string : The pre-allocated character string to check
@@ -67,7 +69,7 @@ int calc_precedence(char operator)
  * Output:
  *   determined_rpn_length : calculated length of rpn string
  * return RC_SUCCESS if characters are within range
- *        RC_FAILURE if any character is invalid
+ *        RC_INVALID_CHAR if any character is invalid
  */
 rpn_return_code_t check_characters(int infix_to_rpn,
 	char* calculation_string, 
@@ -84,8 +86,8 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 	
 	for(; index < calculation_string_length; ++index)
 	{
-		//~ printf("[%d] %c %d\n", index, calculation_string[index], last_char_type);
 		// look for acceptable values
+		// AND check to see if the parens are in the correct location
 		if( (calculation_string[index] >= 'a') &&
 		    (calculation_string[index] <= 'z') &&
 		    ((!infix_to_rpn) ||
@@ -97,6 +99,8 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 			last_char_type = CALCULATION_TYPE_VARIABLE;
 			continue;
 		}
+		// look for acceptable operators
+		// AND check to see if the parens are in the correct location
 		else if (((calculation_string[index] == '^') ||
 				  (calculation_string[index] == '/') ||
 				  (calculation_string[index] == '*') ||
@@ -154,12 +158,10 @@ rpn_return_code_t check_characters(int infix_to_rpn,
 		}
 	}
 	
-	// TODO: Check the correct ratio of operators to variables
-	
 	/* IF the break occured when the index == length, 
 	 * THEN we went through the entire string
-	 * AND There is a variable
-	 * AND there is an operation for any calculation longer than 1 variable
+	 * AND there is one more variable than operator
+	 * AND there is matching number of left and right parens
 	 */
 	//~ printf("operator=%d variable=%d index=%d calculation_string_length=%d\n", has_operator, has_variable, index, calculation_string_length);
 	if( (index + 1 == calculation_string_length) &&
@@ -306,7 +308,7 @@ rpn_return_code_t determine_rpn(char* infix,
 	// If there is only one variable left, then it must be the end
 	if(index_stop == index_start)
 	{
-		// TODO: check char is a variable
+		// check char is a variable
 		if( (infix[index_stop] >= 'a') &&
 			(infix[index_stop] <= 'z') )
 		{
