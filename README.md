@@ -24,7 +24,7 @@ Parse from right to left
 The result has a lot more '()' than the original infix notation. A future improvement would be to remove the paren's when they are determined not to be needed.
 
 
-## Environment requirements
+## Environment Requirements
 *	Ubuntu 14.04 or 16.04
 *	Run install script (./scripts/installEnvironment.sh)
 
@@ -32,7 +32,7 @@ The result has a lot more '()' than the original infix notation. A future improv
 *	make clean all
 
 ## Testing
-### Unit test
+### Unit Test
 *	make clean test
 
 ### Memory Usage Check
@@ -41,8 +41,14 @@ The result has a lot more '()' than the original infix notation. A future improv
 ### Code Coverage Check
 *	make clean coverage
 
-## Library API basics
+## Library API Basics
 The library defines these functions:
 ### convert()
 Converts from infix notation to Reverse Polish Notation (RPN) or from RPN to infix notation.
 See 'rpn_convert.h' for more details on parameters and usage.
+
+## Additional Notes
+###	Commit Message Format
+*	NG = Not Good, this commit has an error, probably from adding a new test
+*	OK = Good, this commit runs successfully
+*	REF = Refactor, this commit refactors successfully running code
