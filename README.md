@@ -52,3 +52,9 @@ See 'rpn_convert.h' for more details on parameters and usage.
 *	NG = Not Good, this commit has an error, probably from adding a new test
 *	OK = Good, this commit runs successfully
 *	REF = Refactor, this commit refactors successfully running code
+
+### Automatic Tests
+This project includes a file called 'JenkinsFile' that when used with the 
+github plugin for Jenkins, will automatically run through the different 
+compilation and tests as described above. It can also be used as an example 
+of how to run the steps manually.
