@@ -11,6 +11,7 @@ node {
 	}
 	stage ('Build') {
 		sh 'make all'
+		sh 'make basic'
 	}
 	stage ('Test') {
 		sh 'make test'

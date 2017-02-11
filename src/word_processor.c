@@ -53,7 +53,9 @@ rpn_return_code_t convert(
 	return return_value;
 }
 
-//~ int main(void)
-//~ {
-	//~ convert("/usr/share/dict/words");
-//~ }
+#ifndef UNIT_TESTING
+int main(int argc, char **argv)
+{
+	convert("/usr/share/dict/words");
+}
+#endif /* Not UNIT_TESTING */

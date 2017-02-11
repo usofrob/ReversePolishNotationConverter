@@ -1,6 +1,6 @@
 CC=gcc
 AR=ar
-CFLAGS=-c -Wall -std=gnu99
+CFLAGS=-c -Wall -std=gnu99 -DUNIT_TESTING
 SOURCES=src/word_processor.c
 OBJECTS=$(SOURCES:.c=.o)
 LIBRARY=lib/libword_processor.a
@@ -33,4 +33,8 @@ $(TEST_EXECUTABLE): $(LIBRARY)
 	$(CC) $(CFLAGS) $(COVERAGEFLAGS) $< -o $@
 
 clean:
-	rm -f $(TEST_EXECUTABLE) $(OBJECTS) $(TEST_OBJECTS) $(LIBRARY) ./*.gcov ./*.gc* ./src/*.gc*
+	rm -f $(TEST_EXECUTABLE) $(OBJECTS) $(TEST_OBJECTS) $(LIBRARY) ./*.gcov ./*.gc* ./src/*.gc* ./bin/*
+
+basic:
+	gcc src/word_processor.c -o bin/word_processor
+	time bin/word_processor
