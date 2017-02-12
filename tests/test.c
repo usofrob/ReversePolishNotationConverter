@@ -57,11 +57,13 @@ void forward_and_reverse(char* infix_input,
 START_TEST (basic)
 {
 	rpn_return_code_t return_code = RC_FAILURE;
+	uint32_t lines = -1;
 	//~ forward_and_reverse("a", RC_SUCCESS, "a", RC_SUCCESS, "a", __LINE__);
-	return_code = convert("/usr/share/dict/words");
+	return_code = convert("/usr/share/dict/words", &lines);
 	ck_assert_msg(RC_SUCCESS == return_code,
 		"Was expecting %d, but found %d", RC_SUCCESS, return_code);
-
+	ck_assert_msg(lines == 99171,
+		"Was expecting %d, but found %d", 99171, lines);
 }
 END_TEST
 

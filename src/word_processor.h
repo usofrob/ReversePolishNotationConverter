@@ -27,6 +27,7 @@ typedef enum rpn_return_code_t
  * returns type rpn_return_code_t
  */
 rpn_return_code_t convert(
-            char* filename);
+            char* filename,
+            uint32_t* lines);
 
 #endif /* WORD_PROCESSOR_H */

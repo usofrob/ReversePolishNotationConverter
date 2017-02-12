@@ -6,9 +6,24 @@
 #include <wchar.h>
 #include <locale.h>
 
+
+uint32_t count_lines(char* buffer, int buffer_length)
+{
+	uint32_t count = 0;
+	for(int index = 0; index < buffer_length; ++index)
+	{
+		if(buffer[index] == '\n')
+		{
+			++count;
+		}
+	}
+	return count;
+}
+
 /* See description in header file */
 rpn_return_code_t convert(
-            char* filename)
+            char* filename,
+            uint32_t* lines)
 {
 	//~ char *input_str = filename;
 	//~ char *output_str = NULL;
@@ -43,7 +58,7 @@ rpn_return_code_t convert(
 	setlocale(LC_ALL, "");
 	printf("études%lc\n", L'é');
 	
-	//~ while(
+	(*lines) = count_lines(file_buffer, file_length);
 	
 	free(file_buffer);
 	fclose(input_file);
@@ -56,6 +71,7 @@ rpn_return_code_t convert(
 #ifndef UNIT_TESTING
 int main(int argc, char **argv)
 {
-	convert("/usr/share/dict/words");
+	uint32_t lines = -1;
+	convert("/usr/share/dict/words", &lines);
 }
 #endif /* Not UNIT_TESTING */
