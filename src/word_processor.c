@@ -119,7 +119,7 @@ rpn_return_code_t convert(
 	//~ printf("études%lc\n", L'é');
 	
 	(*lines) = count_lines(file_buffer, file_length, &word_list_head);
-	printf("Number of words: %ld\n", *lines);
+	printf("Number of words: %d\n", *lines);
 	
 	// General cleanup
 	free(file_buffer);

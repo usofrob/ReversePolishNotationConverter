@@ -36,5 +36,5 @@ clean:
 	rm -f $(TEST_EXECUTABLE) $(OBJECTS) $(TEST_OBJECTS) $(LIBRARY) ./*.gcov ./*.gc* ./src/*.gc* ./bin/*
 
 basic:
-	gcc src/word_processor.c -o bin/word_processor
+	gcc -std=gnu99 src/word_processor.c -o bin/word_processor
 	time bin/word_processor
