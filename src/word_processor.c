@@ -6,15 +6,74 @@
 #include <wchar.h>
 #include <locale.h>
 
-
-uint32_t count_lines(char* buffer, int buffer_length)
+typedef struct word
 {
-	uint32_t count = 0;
-	for(int index = 0; index < buffer_length; ++index)
+	struct word *prev;
+	struct word *next;
+	char * buffer;
+	int length;
+	int index;
+} word_t;
+
+void cleanup(word_t * head)
+{
+	word_t *temp = NULL;
+	if(head == NULL)
 	{
-		if(buffer[index] == '\n')
+		printf("HEAD is null\n");
+		return;
+	}
+	
+	while(head != NULL)
+	{
+		//~ head->prev = NULL;
+		//~ printf("free %s\n", head->buffer);
+		free(head->buffer);
+		//~ head->buffer = NULL;
+		temp = head->next;
+		free(head);
+		head = temp;
+	}
+}
+
+uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head)
+{
+	//~ word_t * word_list_head = (*list_head);
+	word_t * word_list_prev = NULL;
+	word_t * word_list_current = NULL;
+	uint32_t count = 0;
+	int32_t last_newline = -1;
+	int32_t new_length = -1;
+	for(int index = 0; index < buffer_length; ++index)
+	//~ for(int index = 0; index < 1000; ++index)
+	{
+		if((buffer[index] == '\n') && (index - last_newline > 1))
 		{
+			word_list_current = (word_t*) malloc(sizeof(word_t));
+			if((*list_head) == NULL)
+			{
+				(*list_head) = word_list_current;
+			}
+			new_length = index - last_newline;
+			// Create space for new word and copy
+			word_list_current->buffer = (char*) malloc(new_length);
+			memcpy(word_list_current->buffer, buffer + (last_newline + 1), new_length - 1);
+			word_list_current->buffer[new_length - 1] = '\0';
+			
+			//~ printf("new %s, len=%d\n", word_list_current->buffer, new_length);
+			word_list_current->length = new_length;
+			word_list_current->index = count;
+			word_list_current->prev = word_list_prev;
+			word_list_current->next = NULL;
+			if(word_list_prev != NULL)
+			{
+				word_list_prev->next = word_list_current;
+			}
+			
+			last_newline = index;
 			++count;
+			word_list_prev = word_list_current;
+			word_list_current = NULL;
 		}
 	}
 	return count;
@@ -33,6 +92,7 @@ rpn_return_code_t convert(
 	FILE * input_file = NULL;
 	size_t file_length = 0;
 	char * file_buffer = NULL;
+	word_t * word_list_head = NULL;
 
 	// Open file for reading
 	input_file = fopen(filename, "r");
@@ -55,13 +115,19 @@ rpn_return_code_t convert(
 	}
 	//~ printf("read:\n%s\n", file_buffer);
 
-	setlocale(LC_ALL, "");
-	printf("études%lc\n", L'é');
+	//~ setlocale(LC_ALL, "");
+	//~ printf("études%lc\n", L'é');
 	
-	(*lines) = count_lines(file_buffer, file_length);
+	(*lines) = count_lines(file_buffer, file_length, &word_list_head);
+	printf("Number of words: %ld\n", *lines);
 	
+	// General cleanup
 	free(file_buffer);
+	file_buffer = NULL;
 	fclose(input_file);
+	input_file = NULL;
+	cleanup(word_list_head);
+	word_list_head = NULL;
 	
 	return_value = RC_SUCCESS;
 	
