@@ -18,11 +18,14 @@ typedef struct word
 void cleanup(word_t * head)
 {
 	word_t *temp = NULL;
+
+#ifndef UNIT_TESTING
 	if(head == NULL)
 	{
 		printf("HEAD is null\n");
 		return;
 	}
+#endif /* Not UNIT_TESTING */
 	
 	while(head != NULL)
 	{
@@ -108,8 +111,10 @@ rpn_return_code_t convert(
 	
 	size_t newLen = fread(file_buffer, sizeof(char), file_length, input_file);
 	if ( ferror( input_file ) != 0 ) {
+#ifndef UNIT_TESTING
 		fputs("Error reading file", stderr);
 		return RC_FAILURE;
+#endif /* Not UNIT_TESTING */
 	} else {
 		file_buffer[newLen++] = '\0'; /* Just to be safe. */
 	}
