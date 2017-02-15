@@ -11,6 +11,7 @@ typedef struct word
 	struct word *prev;
 	struct word *next;
 	char * buffer;
+	int offset_into_buffer;
 	int length;
 	int index;
 } word_t;
@@ -39,7 +40,7 @@ void cleanup(word_t * head)
 	}
 }
 
-uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head)
+uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head, int *max_word_length)
 {
 	//~ word_t * word_list_head = (*list_head);
 	word_t * word_list_prev = NULL;
@@ -65,8 +66,11 @@ uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head)
 			
 			//~ printf("new %s, len=%d\n", word_list_current->buffer, new_length);
 			word_list_current->length = new_length;
+			if (new_length > (*max_word_length))
+				(*max_word_length) = new_length;
 			word_list_current->index = count;
 			word_list_current->prev = word_list_prev;
+			word_list_current->offset_into_buffer = last_newline + 1;
 			word_list_current->next = NULL;
 			if(word_list_prev != NULL)
 			{
@@ -80,6 +84,44 @@ uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head)
 		}
 	}
 	return count;
+}
+
+void read_into_array(char* buffer, int buffer_length, uint32_t lines, word_t * list_head, int max_word_length)
+{
+	// array of offsets
+	int array[lines];
+	char string_to_newline[max_word_length];
+	//~ word_t * word_list_current = list_head;
+	
+#ifndef UNIT_TESTING
+	if(list_head == NULL)
+	{
+		printf("HEAD is null\n");
+		return;
+	}
+#endif /* Not UNIT_TESTING */
+	
+	//~ for(int offset = 0;
+	while(list_head != NULL)
+	{
+		array[list_head->index] = list_head->offset_into_buffer;
+		
+		if (list_head->index < 100)
+		{
+			int offset = 0;
+			for(;
+				buffer[offset + array[list_head->index]] != '\n';
+				++offset)
+			{
+				// copy data
+				string_to_newline[offset] = buffer[offset + array[list_head->index]];
+			}
+			string_to_newline[offset] = '\0';
+			printf("[%d]=%s\n", list_head->index, string_to_newline);
+		}
+		
+		list_head = list_head->next;
+	}
 }
 
 /* See description in header file */
@@ -96,6 +138,7 @@ rpn_return_code_t convert(
 	size_t file_length = 0;
 	char * file_buffer = NULL;
 	word_t * word_list_head = NULL;
+	int max_word_length = 0;
 
 	// Open file for reading
 	input_file = fopen(filename, "r");
@@ -123,8 +166,9 @@ rpn_return_code_t convert(
 	//~ setlocale(LC_ALL, "");
 	//~ printf("études%lc\n", L'é');
 	
-	(*lines) = count_lines(file_buffer, file_length, &word_list_head);
+	(*lines) = count_lines(file_buffer, file_length, &word_list_head, &max_word_length);
 	printf("Number of words: %d\n", *lines);
+	read_into_array(file_buffer, file_length, *lines, word_list_head, max_word_length);
 	
 	// General cleanup
 	free(file_buffer);
