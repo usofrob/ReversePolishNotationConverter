@@ -86,10 +86,15 @@ uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head, int *
 	return count;
 }
 
-void read_into_array(char* buffer, int buffer_length, uint32_t lines, word_t * list_head, int max_word_length)
+void read_into_array(char* buffer,
+					 int buffer_length, 
+					 uint32_t lines, 
+					 word_t * list_head, 
+					 int max_word_length, 
+					 int ** array_of_offsets)
 {
 	// array of offsets
-	int array[lines];
+	int *array = (*array_of_offsets);
 	char string_to_newline[max_word_length];
 	//~ word_t * word_list_current = list_head;
 	
@@ -106,7 +111,7 @@ void read_into_array(char* buffer, int buffer_length, uint32_t lines, word_t * l
 	{
 		array[list_head->index] = list_head->offset_into_buffer;
 		
-		if (list_head->index < 100)
+		//~ if (list_head->index < 100)
 		{
 			int offset = 0;
 			for(;
@@ -168,8 +173,11 @@ rpn_return_code_t convert(
 	
 	(*lines) = count_lines(file_buffer, file_length, &word_list_head, &max_word_length);
 	printf("Number of words: %d\n", *lines);
-	read_into_array(file_buffer, file_length, *lines, word_list_head, max_word_length);
+	int *array_of_offsets = malloc(sizeof(int)*(*lines));
 	
+	read_into_array(file_buffer, file_length, *lines, word_list_head, max_word_length, &array_of_offsets);
+	
+	free(array_of_offsets);
 	// General cleanup
 	free(file_buffer);
 	file_buffer = NULL;
