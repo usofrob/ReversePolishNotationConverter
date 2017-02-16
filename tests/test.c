@@ -19,6 +19,7 @@ START_TEST (basic)
 	//~ ck_assert_msg(lines == 99171,
 		//~ "Was expecting %d, but found %d", 99171, lines);
 	return_code = convert("/usr/share/dict/words", "zzzzzzbzhzezazzz");
+	return_code = convert("/usr/share/dict/words", "znszzzbzhzezazzz");
 	
 }
 END_TEST

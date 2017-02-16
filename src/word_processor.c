@@ -16,6 +16,8 @@ typedef struct word
 	int index;
 } word_t;
 
+word_t * found_list;
+
 void cleanup(word_t * head)
 {
 	word_t *temp = NULL;
@@ -51,6 +53,12 @@ uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head, int *
 	for(int index = 0; index < buffer_length; ++index)
 	//~ for(int index = 0; index < 1000; ++index)
 	{
+		// convert everything to lowercase
+		if((buffer[index] >= 'A') && (buffer[index] <= 'Z'))
+		{
+			//~ printf("lower:%c\n", buffer[index]);
+			buffer[index] += 32;
+		}
 		if((buffer[index] == '\n') && (index - last_newline > 1))
 		{
 			word_list_current = (word_t*) malloc(sizeof(word_t));
@@ -64,6 +72,7 @@ uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head, int *
 			memcpy(word_list_current->buffer, buffer + (last_newline + 1), new_length - 1);
 			word_list_current->buffer[new_length - 1] = '\0';
 			
+			//~ if(buffer[last_newline + 1] == 'z')
 			//~ printf("new %s, len=%d\n", word_list_current->buffer, new_length);
 			word_list_current->length = new_length;
 			if (new_length > (*max_word_length))
@@ -84,6 +93,62 @@ uint32_t count_lines(char* buffer, int buffer_length, word_t ** list_head, int *
 		}
 	}
 	return count;
+}
+
+void add_to_found_list(char * new_word)
+{
+	word_t * word_list_prev = NULL;
+	word_t * word_list_current = found_list;
+		
+	// convert to all lowercase
+	//~ for(int index = 0; index <= strlen(new_word); ++index)
+	//~ {
+		//~ if((new_word[index] >= 'A') && (new_word[index] <= 'Z'))
+		//~ {
+			//~ new_word[index] += 32;
+		//~ }
+	//~ }
+
+	if(found_list == NULL)
+	{
+		word_list_current = (word_t*) malloc(sizeof(word_t));
+		found_list = word_list_current;
+		word_list_current->buffer = new_word;
+		word_list_current->prev = NULL;
+		word_list_current->next = NULL;
+		return;
+	}
+	
+	
+	// search for duplicates
+	while(word_list_current != NULL)
+	{
+		//~ printf("cdup:%s,%s\n", new_word, word_list_current->buffer);
+		if(strcmp(new_word, word_list_current->buffer) == 0)
+		{
+			//~ printf("dup:%s\n", new_word);
+			return; // already found
+		}
+		word_list_prev = word_list_current;
+		word_list_current = word_list_current->next;
+	}
+	// not found, so add
+	
+	word_list_current = (word_t*) malloc(sizeof(word_t));
+	word_list_current->buffer = new_word;
+	//~ word_list_current->prev = NULL;
+	word_list_current->next = NULL;
+	word_list_prev->next = word_list_current;
+}
+
+void print_list()
+{
+	word_t * word_list_current = found_list;
+	while(word_list_current != NULL)
+	{
+		printf("%s\n", word_list_current->buffer);
+		word_list_current = word_list_current->next;
+	}
 }
 
 void read_into_array(char* buffer,
@@ -129,11 +194,38 @@ void read_into_array(char* buffer,
 	}
 }
 
+//~ char * next_printable(char * buffer)
+//~ {
+	//~ while((buffer[0] != '\0') && 
+		  //~ while(((buffer[0] < 'a') ||
+		   //~ (buffer[0] > 'z')))
+	//~ {
+		//~ printf("found:%c\n", buffer[0]);
+		//~ buffer = buffer + 1;
+	//~ }
+	//~ return buffer;
+//~ }
+
 rpn_return_code_t search_from_start(char* test_word, char* boggle_map, char* used_map, int last_index)
 {
 	rpn_return_code_t return_code = RC_FAILURE;
 	int search_pattern[8] = {-5, -4, -3, -1, 1, 3, 4, 5};
 	// search all safe directions
+	if(test_word[0] == '\0')
+	{
+		//~ printf("l:%s\n", test_word);
+		return RC_SUCCESS;
+	}
+	if((test_word[0] < 'a') || (test_word[0] > 'z'))
+	{
+		//~ printf("l:%s\n", test_word);
+		// go to next letter
+		if(search_from_start(test_word + 1, boggle_map, used_map, last_index) == RC_SUCCESS)
+		{
+			return RC_SUCCESS;
+		}
+	}
+	
 	for(int direction = 0; direction < 8; ++direction)
 	{
 		int next_index = last_index + search_pattern[direction];
@@ -142,6 +234,7 @@ rpn_return_code_t search_from_start(char* test_word, char* boggle_map, char* use
 		   (test_word[0] == boggle_map[next_index]))
 		{
 			used_map[next_index] = 1;
+			//~ test_word = next_printable(test_word);
 			if(test_word[1] == '\0')
 			{
 				//~ printf("l:%s\n", test_word);
@@ -166,9 +259,15 @@ void match_word(word_t * list_head,
 					 0, 0, 0, 0,
 					 0, 0, 0, 0,
 					 0, 0, 0, 0};
+	//~ int print = 0;
 	// for each word
 	while(list_head != NULL)
 	{
+		//~ if((list_head->buffer[0] == 'z') && (list_head->buffer[1] == 'n'))
+		//~ {
+			//~ printf("try:%s\n", list_head->buffer);
+			//~ print  = 1;
+		//~ }
 		// for each letter on the map
 		for (int start_index = 0; start_index < 16; ++start_index)
 		{
@@ -183,7 +282,8 @@ void match_word(word_t * list_head,
 								used,
 								start_index) == RC_SUCCESS)
 				{
-					printf("word:%s\n", list_head->buffer);
+					//~ printf("word:%s\n", list_head->buffer);
+					add_to_found_list(list_head->buffer);
 					break;
 				}
 			}
@@ -208,6 +308,7 @@ rpn_return_code_t convert(
 	char * file_buffer = NULL;
 	word_t * word_list_head = NULL;
 	int max_word_length = 0;
+	found_list = NULL;
 
 	// Open file for reading
 	input_file = fopen(filename, "r");
@@ -217,7 +318,7 @@ rpn_return_code_t convert(
 	file_length = ftell(input_file);
 	
 	file_buffer = malloc(sizeof(char) * (file_length + 1));
-	printf("File size: %ld\n", file_length);
+	//~ printf("File size: %ld\n", file_length);
 	fseek(input_file, 0, SEEK_SET);
 	//~ fseek(input_file, -100, SEEK_CUR);
 	
@@ -240,7 +341,7 @@ rpn_return_code_t convert(
 	
 	
 	match_word(word_list_head, boggle_map);
-	
+	print_list();
 	
 	
 	
