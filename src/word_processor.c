@@ -122,9 +122,72 @@ void read_into_array(char* buffer,
 				string_to_newline[offset] = buffer[offset + array[list_head->index]];
 			}
 			string_to_newline[offset] = '\0';
-			printf("[%d]=%s\n", list_head->index, string_to_newline);
+			//~ printf("[%d]=%s\n", list_head->index, string_to_newline);
 		}
 		
+		list_head = list_head->next;
+	}
+}
+
+rpn_return_code_t search_from_start(char* test_word, char* boggle_map, char* used_map, int last_index)
+{
+	rpn_return_code_t return_code = RC_FAILURE;
+	int search_pattern[8] = {-5, -4, -3, -1, 1, 3, 4, 5};
+	// search all safe directions
+	for(int direction = 0; direction < 8; ++direction)
+	{
+		int next_index = last_index + search_pattern[direction];
+		if((next_index >=0) && (next_index <=15) &&
+		   (used_map[next_index] == 0) && 
+		   (test_word[0] == boggle_map[next_index]))
+		{
+			used_map[next_index] = 1;
+			if(test_word[1] == '\0')
+			{
+				//~ printf("l:%s\n", test_word);
+				return RC_SUCCESS;
+			}
+			if(search_from_start(test_word + 1, boggle_map, used_map, next_index) == RC_SUCCESS)
+			{
+				return RC_SUCCESS;
+			}
+			
+		}
+	}
+	
+	return return_code;
+}
+
+void match_word(word_t * list_head,
+				char* boggle_map)
+{
+	rpn_return_code_t return_code = RC_FAILURE;
+	char used[16] = {0, 0, 0, 0,
+					 0, 0, 0, 0,
+					 0, 0, 0, 0,
+					 0, 0, 0, 0};
+	// for each word
+	while(list_head != NULL)
+	{
+		// for each letter on the map
+		for (int start_index = 0; start_index < 16; ++start_index)
+		{
+			memset(used, 0, sizeof(used));
+			// check to see if the next letter matches
+			if(list_head->buffer[0] == boggle_map[start_index])
+			{
+				// record matched letters
+				used[start_index] = 1;
+				if(search_from_start(list_head->buffer + 1,
+								boggle_map,
+								used,
+								start_index) == RC_SUCCESS)
+				{
+					printf("word:%s\n", list_head->buffer);
+					break;
+				}
+			}
+		}
 		list_head = list_head->next;
 	}
 }
@@ -132,8 +195,9 @@ void read_into_array(char* buffer,
 /* See description in header file */
 rpn_return_code_t convert(
             char* filename,
-            uint32_t* lines)
+            char* boggle_map)
 {
+	uint32_t lines = 0;
 	//~ char *input_str = filename;
 	//~ char *output_str = NULL;
 	//~ uint32_t *input_length = filename_length;
@@ -171,11 +235,19 @@ rpn_return_code_t convert(
 	//~ setlocale(LC_ALL, "");
 	//~ printf("études%lc\n", L'é');
 	
-	(*lines) = count_lines(file_buffer, file_length, &word_list_head, &max_word_length);
-	printf("Number of words: %d\n", *lines);
-	int *array_of_offsets = malloc(sizeof(int)*(*lines));
+	lines = count_lines(file_buffer, file_length, &word_list_head, &max_word_length);
+	//~ printf("Number of words: %d\n", *lines);
 	
-	read_into_array(file_buffer, file_length, *lines, word_list_head, max_word_length, &array_of_offsets);
+	
+	match_word(word_list_head, boggle_map);
+	
+	
+	
+	
+	
+	int *array_of_offsets = malloc(sizeof(int) * lines);
+	
+	read_into_array(file_buffer, file_length, lines, word_list_head, max_word_length, &array_of_offsets);
 	
 	free(array_of_offsets);
 	// General cleanup
@@ -195,6 +267,12 @@ rpn_return_code_t convert(
 int main(int argc, char **argv)
 {
 	uint32_t lines = -1;
-	convert("/usr/share/dict/words", &lines);
+	if(argc != 3)
+	{
+		printf("a.out /usr/share/dict/words abanzqzdrrorrnrr\n");
+		return -1;
+	}
+
+	convert(argv[1], argv[2]);
 }
 #endif /* Not UNIT_TESTING */

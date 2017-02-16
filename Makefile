@@ -37,4 +37,4 @@ clean:
 
 basic:
 	gcc -std=gnu99 src/word_processor.c -o bin/word_processor
-	time bin/word_processor
+	time bin/word_processor "/usr/share/dict/words" abanzqzdrrorrnrr

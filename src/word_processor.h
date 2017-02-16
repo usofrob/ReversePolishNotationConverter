@@ -28,6 +28,6 @@ typedef enum rpn_return_code_t
  */
 rpn_return_code_t convert(
             char* filename,
-            uint32_t* lines);
+            char* boggle_map);
 
 #endif /* WORD_PROCESSOR_H */
