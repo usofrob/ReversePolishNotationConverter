@@ -12,6 +12,11 @@ typedef struct word
 	char * buffer;
 } word_t;
 
+typedef struct boggle_used
+{
+	char used[16];
+} boggle_used_t;
+
 word_t * found_list;
 
 void cleanup(word_t * head)
@@ -123,7 +128,7 @@ void print_list()
 	}
 }
 
-rpn_return_code_t search_from_start(char* test_word, char* boggle_map, char* used_map, int last_index)
+rpn_return_code_t search_from_start(char* test_word, char* boggle_map, boggle_used_t used_map, int last_index)
 {
 	int search_pattern[8] = {-5, -4, -3, -1, 1, 3, 4, 5};
 	// search all safe directions
@@ -144,10 +149,10 @@ rpn_return_code_t search_from_start(char* test_word, char* boggle_map, char* use
 	{
 		int next_index = last_index + search_pattern[direction];
 		if((next_index >=0) && (next_index <=15) &&
-		   (used_map[next_index] == 0) && 
+		   (used_map.used[next_index] == 0) && 
 		   (test_word[0] == boggle_map[next_index]))
 		{
-			used_map[next_index] = 1;
+			used_map.used[next_index] = 1;
 			if(test_word[1] == '\0')
 			{
 				return RC_SUCCESS;
@@ -166,22 +171,19 @@ rpn_return_code_t search_from_start(char* test_word, char* boggle_map, char* use
 void match_word(word_t * list_head,
 				char* boggle_map)
 {
-	char used[16] = {0, 0, 0, 0,
-					 0, 0, 0, 0,
-					 0, 0, 0, 0,
-					 0, 0, 0, 0};
+	boggle_used_t used;
 	// for each word
 	while(list_head != NULL)
 	{
 		// for each letter on the map
 		for (int start_index = 0; start_index < 16; ++start_index)
 		{
-			memset(used, 0, sizeof(used));
+			memset(&used, 0, sizeof(boggle_used_t));
 			// check to see if the next letter matches
 			if(list_head->buffer[0] == boggle_map[start_index])
 			{
 				// record matched letters
-				used[start_index] = 1;
+				used.used[start_index] = 1;
 				if(search_from_start(list_head->buffer + 1,
 								boggle_map,
 								used,
